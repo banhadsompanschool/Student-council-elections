@@ -35,22 +35,26 @@
 
         .header-modern { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border-bottom: 3px solid #e11d48; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
 
-        /* ✅ ปรับการ์ดเลือกเบอร์ให้พอดีจอ ไม่ต้องเลื่อน (No Scroll) */
+        /* ✅ ปรับขนาดและสัดส่วนให้ภาพไม่โดนตัด */
         .candidate-card {
-            background: white; border-radius: 20px; padding: 16px;
+            background: white; border-radius: 20px; padding: 20px 20px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.05);
             border: 1px solid #f1f5f9; transition: all 0.3s ease; position: relative; cursor: pointer;
-            width: 100%; max-width: 300px; margin: 0 auto;
-            margin-top: 25px; /* เว้นที่ให้วงกลมเบอร์ */
+            width: 100%; 
+            max-width: 320px; /* จำกัดความกว้าง เพื่อไม่ให้รูปสูงจนล้นจอ iPad */
+            margin: 0 auto;
+            margin-top: 25px; 
+            display: flex; flex-direction: column; justify-content: space-between;
         }
         .candidate-card img {
             width: 100%;
-            height: 32vh; /* ✅ ปรับความสูงตามสัดส่วนจอ iPad เพื่อไม่ให้ทะลุจอ */
-            max-height: 260px;
-            aspect-ratio: 3/4; /* ✅ ล็อกสัดส่วนภาพ 1086x1448 px */
-            object-fit: cover;
-            object-position: top;
+            height: auto;
+            aspect-ratio: 3/4; /* ✅ ล็อกสัดส่วนภาพ 1086x1448 px พอดีเป๊ะ */
+            object-fit: contain; /* ✅ บังคับให้ภาพโชว์ครบ 100% ไม่มีการ Crop (ตัด) ใดๆ ทั้งสิ้น */
+            object-position: center;
             border-radius: 12px;
+            background-color: #f8fafc; /* เผื่อพื้นหลังให้ดูเป็นกรอบสวยๆ */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
         .candidate-card:hover { transform: translateY(-4px); border-color: #1e40af; box-shadow: 0 12px 30px rgba(30, 64, 175, 0.1); }
         
@@ -72,11 +76,9 @@
 
         .swal-custom-input { font-family: 'Kanit', sans-serif !important; }
         
-        /* ✅ ปุ่มคู่มือล่องหน ย้ายมาขวาบนของฟุตเตอร์ */
         .guide-btn {
             position: absolute; bottom: 100%; right: 20px; margin-bottom: 12px;
-            background: white; color: #64748b;
-            padding: 8px 16px; border-radius: 30px;
+            background: white; color: #64748b; padding: 8px 16px; border-radius: 30px;
             font-size: 0.85rem; cursor: pointer; border: 1px solid #e2e8f0; 
             opacity: 0.4; transition: all 0.3s ease; z-index: 40;
             display: flex; align-items: center; gap: 6px;
@@ -275,6 +277,7 @@
                     </div>
                 </div>
             </div>
+
         </main>
     </div>
 
@@ -304,13 +307,13 @@
         function showGuide() {
             Swal.fire({
                 title: '<h3 class="font-semibold text-theme-blue font-kanit">คู่มือการลงคะแนน</h3>',
-                html: '<div class="text-left font-kanit text-sm space-y-2 text-gray-600"><p>1. ตรวจสอบหมายเลขและหน้าผู้สมัคร</p><p>2. แตะที่การ์ดผู้สมัครที่ต้องการเลือก</p><p>3. กดยืนยันในหน้าต่างป๊อปอัพ</p><p>4. รอระบบส่งคะแนนและรีเฟรชหน้าจอ</p></div>',
+                html: '<div class="text-left font-kanit text-sm space-y-2 text-gray-600"><p>1. ตรวจสอบหมายเลขและหน้าผู้สมัคร</p><p>2. แตะที่การ์ดผู้สมัครที่ต้องการเลือก</p><p>3. กดยืนยันในหน้าต่างป๊อปอัพ</p><p>4. รอระบบส่งคะแนนและรีเซ็ตหน้าจอ</p></div>',
                 confirmButtonText: 'เข้าใจแล้ว', confirmButtonColor: '#1e40af'
             });
         }
 
         // ----------------------------------------------------
-        // ✅ 2. ระบบ Login & ยืนยันตัวตน
+        // ✅ 2. ระบบ Login แอดมิน (ขยายฟอนต์ให้อ่านง่าย)
         // ----------------------------------------------------
         async function authAdmin() {
             const { value: formValues } = await Swal.fire({
@@ -426,7 +429,7 @@
                     newPhase = 'ended';
                 }
 
-                if (currentPhase && currentPhase !== newPhase) { window.location.reload(); }
+                if (currentPhase && currentPhase !== newPhase) { window.scrollTo(0,0); }
                 currentPhase = newPhase;
 
                 if(newPhase === 'waiting') {
@@ -435,12 +438,8 @@
                     box.classList.add('hidden-view'); grid.classList.remove('hidden-view'); summary.classList.add('hidden-view');
                     document.querySelectorAll('.vote-btn-text').forEach(el => { el.innerText = "แตะเพื่อเลือก"; el.parentElement.classList.replace('bg-gray-100','bg-blue-50'); el.parentElement.classList.replace('text-gray-400','text-theme-blue'); });
                 } else if(newPhase === 'ended') {
-                    // ✅ เวลาจบ ยังโชว์การ์ดแต่กดไม่ได้
-                    box.classList.remove('hidden-view'); grid.classList.remove('hidden-view'); summary.classList.add('hidden-view');
-                    document.getElementById('statusDesc').innerText = "สิ้นสุดการลงคะแนน หรือ ครบจำนวนผู้ใช้สิทธิ์แล้ว";
-                    display.innerHTML = '<i class="fas fa-box-open text-gray-300 text-6xl my-4"></i>';
+                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view'); summary.classList.add('hidden-view');
                     document.querySelectorAll('.vote-btn-text').forEach(el => { el.innerText = "ปิดลงคะแนน"; el.parentElement.classList.replace('bg-blue-50','bg-gray-100'); el.parentElement.classList.replace('text-theme-blue','text-gray-400'); });
-                    clearInterval(timerInterval);
                 }
             }, 1000);
         }
@@ -460,7 +459,7 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 4. จัดการผู้สมัคร & โหวต
+        // ✅ 4. จัดการผู้สมัคร & โหวต (แก้บัค Soft Reload)
         // ----------------------------------------------------
         async function loadCandidates() {
             const render = document.getElementById('candidates-render'); const adminList = document.getElementById('adminList');
@@ -471,13 +470,13 @@
                     const c = doc.data(); const id = doc.id; cData[c.number] = {name: c.name, img: c.imageUrl, color: c.color || '#1e40af'};
                     
                     const card = document.createElement('div');
-                    card.className = "candidate-card flex flex-col items-center";
+                    card.className = "candidate-card flex flex-col items-center mt-4";
                     card.onclick = () => confirmVote(c.number, c.name, c.imageUrl);
                     card.innerHTML = `
                         <div class="number-badge"><span>${c.number}</span></div>
-                        <img src="${c.imageUrl}" class="mt-4 mb-3 border border-gray-100" onerror="this.src='https://via.placeholder.com/300'">
-                        <h3 class="text-lg font-medium text-gray-800 text-center leading-tight line-clamp-1">${c.name}</h3>
-                        <div class="mt-3 bg-blue-50 px-4 py-1.5 rounded-full w-full text-center text-sm text-theme-blue font-medium"><span class="vote-btn-text">แตะเพื่อเลือก</span></div>
+                        <img src="${c.imageUrl}" onerror="this.src='https://via.placeholder.com/300'">
+                        <h3 class="text-xl mt-4 font-medium text-gray-800 text-center leading-tight line-clamp-1">${c.name}</h3>
+                        <div class="mt-3 bg-blue-50 px-4 py-2 rounded-full w-full text-center text-sm text-theme-blue font-medium"><span class="vote-btn-text">แตะเพื่อเลือก</span></div>
                     `;
                     render.appendChild(card);
 
@@ -508,12 +507,16 @@
             }).then(r => { if(r.isConfirmed) submitVote(num); });
         }
 
+        // ✅ แก้บัค Soft Reset แทน Reload เพื่อไม่ให้กราฟพัง
         async function submitVote(num) {
             Swal.fire({title: 'กำลังส่งคะแนน...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
             try {
                 await db.collection('votes').add({ votedFor: num, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                Swal.fire({ icon: 'success', title: 'โหวตสำเร็จ!', text: 'ระบบจะรีเฟรชเพื่อเตรียมรับคนถัดไป', showConfirmButton: false, timer: 1500 })
-                .then(() => { window.location.reload(); }); 
+                Swal.fire({ icon: 'success', title: 'โหวตสำเร็จ!', text: 'ขอบคุณที่ใช้สิทธิ์', showConfirmButton: false, timer: 1500 })
+                .then(() => { 
+                    // ใช้ ScrollTo แทน window.location.reload()
+                    document.getElementById('voterView').scrollTo({ top: 0, behavior: 'smooth' }); 
+                }); 
             } catch(e) {}
         }
 
