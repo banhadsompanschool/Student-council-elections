@@ -35,7 +35,6 @@
 
         .header-modern { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border-bottom: 3px solid #e11d48; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
 
-        /* ✅ การ์ดโหวต: ปรับ object-fit เป็น contain เพื่อให้ภาพ 3:4 แสดงครบไม่แหว่ง */
         .candidate-card {
             background: white; border-radius: 20px; padding: 16px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; 
@@ -45,7 +44,7 @@
         }
         .candidate-card img {
             width: 100%; aspect-ratio: 3/4; object-fit: contain; object-position: center;
-            border-radius: 12px; background-color: #f8fafc; /* พื้นหลังสีเทาอ่อนกันขอบขาว */
+            border-radius: 12px; background-color: #f8fafc;
         }
         .candidate-card:hover { transform: translateY(-4px); border-color: #1e40af; box-shadow: 0 12px 30px rgba(30, 64, 175, 0.1); }
         
@@ -94,8 +93,8 @@
                 </div>
 
                 <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full max-w-2xl z-0 pointer-events-none px-4">
-                    <h1 class="text-lg md:text-2xl font-medium text-theme-blue tracking-wide leading-tight">ระบบเลือกตั้งสภานักเรียน ประจำปีการศึกษา 2569</h1>
-                    <h2 class="text-sm md:text-lg font-normal text-theme-red mt-1">โรงเรียนบ้านหาดส้มแป้น ณ <span id="headerLocationDisplay">กำลังโหลด...</span></h2>
+                    <h1 class="text-lg md:text-2xl font-normal text-theme-blue tracking-wide leading-tight">ระบบเลือกตั้งสภานักเรียน ประจำปีการศึกษา 2569</h1>
+                    <h2 class="text-sm md:text-lg font-light text-theme-red mt-1">โรงเรียนบ้านหาดส้มแป้น ณ <span id="headerLocationDisplay">ไม่ได้ระบุสถานที่</span></h2>
                 </div>
 
                 <div class="z-10 w-24 text-right">
@@ -174,18 +173,17 @@
         <main class="main-content">
             <div id="admin-dashboard-view" class="admin-tab">
                 <h1 class="text-2xl font-semibold text-gray-800 mb-6">ภาพรวมผลคะแนนการเลือกตั้ง</h1>
-                
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-                    <div id="cardVertical" class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm relative flex flex-col">
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm relative flex flex-col">
                         <button onclick="openLiveDashboard()" class="expand-btn" title="เปิดหน้าต่าง Live Dashboard"><i class="fas fa-expand"></i></button>
-                        <h3 class="text-gray-600 font-semibold text-base mb-2"><i class="fas fa-chart-simple text-theme-blue mr-2"></i> กราฟเรียลไทม์ (แนวตั้ง)</h3>
-                        <p class="text-xs text-gray-400 mb-4">กดปุ่มขยายเพื่อดูโหมด Live Dashboard พร้อมประวัติคนโหวต</p>
+                        <h3 class="text-gray-600 font-semibold text-base mb-1"><i class="fas fa-chart-simple text-theme-blue mr-2"></i> กราฟเรียลไทม์ (แนวตั้ง)</h3>
+                        <p class="text-xs text-gray-400 mb-4 font-light">กดปุ่มมุมขวาบนเพื่อดูโหมด Live Dashboard</p>
                         <div class="h-64 w-full flex-grow"><canvas id="voteChartVertical"></canvas></div>
                     </div>
                     
-                    <div id="cardHorizontal" class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm relative flex flex-col">
-                        <h3 class="text-gray-600 font-semibold text-base mb-2"><i class="fas fa-list-ul text-theme-blue mr-2"></i> สรุปผลคะแนน (แนวนอน)</h3>
-                        <p class="text-xs text-gray-400 mb-4">แสดงยอดโหวตและเปอร์เซ็นต์สัดส่วน</p>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm relative flex flex-col">
+                        <h3 class="text-gray-600 font-semibold text-base mb-1"><i class="fas fa-list-ul text-theme-blue mr-2"></i> สรุปผลคะแนน (แนวนอน)</h3>
+                        <p class="text-xs text-gray-400 mb-4 font-light">แสดงยอดโหวตและเปอร์เซ็นต์แบบเรียลไทม์</p>
                         <div class="h-64 w-full flex-grow"><canvas id="voteChartHorizontal"></canvas></div>
                     </div>
                 </div>
@@ -199,7 +197,7 @@
                         <form id="addCForm" class="space-y-3">
                             <div><label class="text-xs font-light text-gray-600">เบอร์</label><input type="number" id="cNo" required class="w-full border border-gray-300 p-2 rounded-lg mt-1 outline-none text-sm"></div>
                             <div><label class="text-xs font-light text-gray-600">ชื่อ-นามสกุล</label><input type="text" id="cName" required class="w-full border border-gray-300 p-2 rounded-lg mt-1 outline-none text-sm"></div>
-                            <div><label class="text-xs font-light text-gray-600">ลิงก์รูปภาพ (ขนาด 3:4 จะสวยสุด)</label><input type="url" id="cImg" required class="w-full border border-gray-300 p-2 rounded-lg mt-1 outline-none text-sm"></div>
+                            <div><label class="text-xs font-light text-gray-600">ลิงก์รูปภาพ</label><input type="url" id="cImg" required class="w-full border border-gray-300 p-2 rounded-lg mt-1 outline-none text-sm"></div>
                             <div><label class="text-xs font-light text-gray-600">สีประจำเบอร์ (โชว์ในกราฟ)</label><input type="color" id="cColor" value="#1e40af" class="w-full h-10 border border-gray-300 p-1 rounded-lg mt-1 cursor-pointer"></div>
                             <button type="submit" class="w-full py-2.5 bg-theme-blue text-white rounded-lg font-medium shadow hover:bg-blue-900 mt-2 text-sm"><i class="fas fa-plus mr-2"></i> บันทึกข้อมูล</button>
                         </form>
@@ -248,17 +246,40 @@
                         <thead class="bg-gray-50 text-gray-500 text-xs font-medium"><tr><th class="px-5 py-3">เวลาที่โหวต</th><th class="px-5 py-3">รายการ</th></tr></thead>
                         <tbody id="voteLogsTable" class="text-sm text-gray-600 divide-y divide-gray-100"></tbody>
                     </table>
-                    <p class="text-xs text-gray-400 p-3 bg-gray-50 text-center">* ระบบเก็บเป็นความลับ ไม่แสดงชื่อผู้โหวตเพื่อความโปร่งใส</p>
                 </div>
             </div>
 
             <div id="admin-export-view" class="admin-tab hidden-view">
                 <h1 class="text-2xl font-semibold text-gray-800 mb-6">จัดการข้อมูล & ส่งออก</h1>
+                
+                <div id="exportSummaryData" class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-6 relative">
+                    <div class="text-center mb-6">
+                        <img src="https://www.banhadsompan.ac.th/_files_school/86101511/data/86101511_0_20240629-000624.png" class="w-16 h-16 mx-auto mb-2">
+                        <h2 class="text-xl font-semibold text-theme-blue">สรุปผลการเลือกตั้งสภานักเรียน ประจำปีการศึกษา 2569</h2>
+                        <h3 class="text-base font-light text-gray-600 mt-1">โรงเรียนบ้านหาดส้มแป้น</h3>
+                        <p class="text-sm font-medium text-gray-500 mt-3 bg-gray-50 inline-block px-4 py-1 rounded-full border border-gray-200">ยอดผู้ใช้สิทธิ์ทั้งหมด: <span id="exportTotalVotes" class="font-bold text-theme-red text-lg">0</span> คน</p>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-100 text-gray-600 text-sm">
+                                <tr>
+                                    <th class="border-b border-gray-200 px-4 py-3 text-center w-20">เบอร์</th>
+                                    <th class="border-b border-gray-200 px-4 py-3">ชื่อ-นามสกุล</th>
+                                    <th class="border-b border-gray-200 px-4 py-3 text-center w-32">คะแนนโหวต</th>
+                                    <th class="border-b border-gray-200 px-4 py-3 text-center w-24">ร้อยละ (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="exportTableBody" class="text-sm text-gray-700 divide-y divide-gray-100">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-4">
                         <h3 class="text-sm font-medium text-gray-700 border-b pb-2">ส่งออกรายงาน (Export)</h3>
-                        <button onclick="exportExcelConfirm()" class="w-full bg-green-50 text-green-700 border border-green-200 px-4 py-3 rounded-lg font-medium hover:bg-green-100 transition text-sm flex items-center justify-center gap-2"><i class="fas fa-file-excel"></i> ดาวน์โหลดผลโหวต (Excel)</button>
-                        <button onclick="exportChartConfirm()" class="w-full bg-blue-50 text-theme-blue border border-blue-200 px-4 py-3 rounded-lg font-medium hover:bg-blue-100 transition text-sm flex items-center justify-center gap-2"><i class="fas fa-image"></i> เซฟรูปกราฟสรุปผล (PNG)</button>
+                        <button onclick="exportExcelConfirm()" class="w-full bg-green-50 text-green-700 border border-green-200 px-4 py-3 rounded-lg font-medium hover:bg-green-100 transition text-sm flex items-center justify-center gap-2"><i class="fas fa-file-excel"></i> ดาวน์โหลดตารางนี้ (Excel)</button>
+                        <button onclick="exportChartConfirm()" class="w-full bg-blue-50 text-theme-blue border border-blue-200 px-4 py-3 rounded-lg font-medium hover:bg-blue-100 transition text-sm flex items-center justify-center gap-2"><i class="fas fa-image"></i> เซฟตารางนี้เป็นรูป (PNG)</button>
                     </div>
                     
                     <div class="bg-red-50 p-6 rounded-2xl border border-red-100 flex flex-col gap-4">
@@ -277,23 +298,21 @@
                 <h2 class="text-2xl font-bold text-theme-blue flex items-center gap-3">
                     <i class="fas fa-broadcast-tower text-red-500 animate-pulse"></i> LIVE: รายงานผลการลงคะแนนแบบเรียลไทม์
                 </h2>
-                <button onclick="closeLiveDashboard()" class="text-gray-400 hover:text-red-500 text-3xl transition">&times;</button>
+                <button onclick="closeLiveDashboard()" class="text-gray-400 hover:text-red-500 text-4xl leading-none transition">&times;</button>
             </div>
             
             <div class="flex flex-col lg:flex-row gap-6 h-full overflow-hidden">
-                <div class="lg:w-3/4 flex flex-col gap-4 h-full">
-                    <div id="liveCartoonsContainer" class="flex gap-4 overflow-x-auto p-4 bg-white rounded-2xl shadow-sm border border-gray-200">
-                        </div>
+                <div class="lg:w-2/3 flex flex-col gap-4 h-full">
                     <div class="flex-grow bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
                         <canvas id="liveVoteChart"></canvas>
                     </div>
                 </div>
                 
-                <div class="lg:w-1/4 flex flex-col gap-4 h-full">
+                <div class="lg:w-1/3 flex flex-col gap-4 h-full">
                     <div class="bg-gradient-to-br from-blue-700 to-blue-500 p-6 rounded-2xl shadow-sm text-white text-center flex-shrink-0">
                         <p class="text-sm font-light opacity-90">ผู้ใช้สิทธิ์ขณะนี้</p>
-                        <h3 class="text-5xl font-bold mt-2" id="liveTotalVotes">0</h3>
-                        <p class="text-xs mt-1 opacity-80">คน</p>
+                        <h3 class="text-6xl font-bold mt-2" id="liveTotalVotes">0</h3>
+                        <p class="text-sm mt-1 opacity-80">คน</p>
                     </div>
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex-grow flex flex-col overflow-hidden">
                         <div class="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
@@ -341,7 +360,7 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 2. ระบบ Login
+        // ✅ 2. ระบบ Login แอดมิน
         // ----------------------------------------------------
         async function authAdmin() {
             const { value: formValues } = await Swal.fire({
@@ -390,7 +409,10 @@
             document.getElementById(`admin-${tabName}-view`).classList.remove('hidden-view');
             document.getElementById(`tab-${tabName}`).classList.add('menu-active');
             
-            if(tabName === 'dashboard') { initVoteStats(); }
+            if(tabName === 'dashboard') { 
+                if(voteChartVertical) voteChartVertical.resize(); 
+                if(voteChartHorizontal) voteChartHorizontal.resize(); 
+            }
             if(tabName === 'logs') { loadAdminLogs(); loadVoteLogs(); }
         }
 
@@ -411,7 +433,7 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 3. ระบบเวลา 
+        // ✅ 3. ระบบเวลา & โควตา 
         // ----------------------------------------------------
         function listenToTime() {
             db.collection('settings').doc('electionTime').onSnapshot(doc => {
@@ -440,7 +462,6 @@
                 const now = new Date().getTime();
                 const box = document.getElementById('timeStatusBox');
                 const grid = document.getElementById('votingGrid');
-                const summary = document.getElementById('summaryGrid');
                 const display = document.getElementById('timerDisplay');
                 
                 let newPhase = 'voting';
@@ -464,47 +485,19 @@
                 currentPhase = newPhase;
 
                 if(newPhase === 'waiting') {
-                    box.classList.remove('hidden-view'); grid.classList.add('hidden-view'); summary.classList.add('hidden-view');
+                    box.classList.remove('hidden-view'); grid.classList.add('hidden-view'); document.getElementById('summaryGrid').classList.add('hidden-view');
                 } else if(newPhase === 'voting') {
-                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view'); summary.classList.add('hidden-view');
+                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view'); document.getElementById('summaryGrid').classList.add('hidden-view');
                 } else if(newPhase === 'ended') {
-                    box.classList.add('hidden-view'); grid.classList.add('hidden-view'); summary.classList.remove('hidden-view');
+                    box.classList.add('hidden-view'); grid.classList.add('hidden-view'); document.getElementById('summaryGrid').classList.remove('hidden-view');
                     renderSummary(); clearInterval(timerInterval);
                 }
             }, 1000);
         }
 
-        async function renderSummary() {
-            const container = document.getElementById('summaryResults');
-            const snapVotes = await db.collection('votes').get();
-            const res = {}; snapVotes.forEach(d => { const n = d.data().votedFor; res[n] = (res[n] || 0) + 1; });
-            
-            let arr = Object.keys(cData).map(k => ({ num: k, name: cData[k].name, img: cData[k].img, votes: res[k] || 0 }));
-            arr.sort((a,b) => b.votes - a.votes);
-            
-            container.innerHTML = "";
-            arr.forEach((c, index) => {
-                let badge = index === 0 ? '<div class="bg-yellow-400 text-white text-xs px-2 py-1 rounded-full absolute -top-3 -right-3 shadow"><i class="fas fa-crown"></i> ชนะเลิศ</div>' : '';
-                container.innerHTML += `
-                    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 flex items-center gap-4 w-full relative">
-                        ${badge}
-                        <img src="${c.img}" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm">
-                        <div class="text-left flex-grow">
-                            <p class="text-xs text-gray-500">เบอร์ ${c.num}</p>
-                            <h4 class="text-sm font-medium text-gray-800 line-clamp-1">${c.name}</h4>
-                        </div>
-                        <div class="text-center bg-white px-3 py-1 rounded-lg border border-gray-100 flex-shrink-0">
-                            <h3 class="text-xl font-bold text-theme-blue leading-none">${c.votes}</h3>
-                            <p class="text-[10px] text-gray-400">คะแนน</p>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
         async function saveSettingsConfirm() {
             const s = document.getElementById('setStart').value; const e = document.getElementById('setEnd').value; 
-            const loc = document.getElementById('setLocation').value; const lim = parseInt(document.getElementById('setLimit').value);
+            const loc = document.getElementById('setLocation').value; const lim = parseInt(document.getElementById('setLimit').value) || 0;
             const name = await askAdminName("บันทึกการตั้งค่า");
             if(name) {
                 Swal.fire({title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading()});
@@ -517,7 +510,7 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 4. จัดการผู้สมัคร & โหวต (Soft Reset)
+        // ✅ 4. จัดการผู้สมัคร & โหวต
         // ----------------------------------------------------
         async function loadCandidates() {
             const render = document.getElementById('candidates-render'); const adminList = document.getElementById('adminList');
@@ -528,14 +521,12 @@
                     const c = doc.data(); const id = doc.id; cData[c.number] = {name: c.name, img: c.imageUrl, color: c.color || '#1e40af'};
                     
                     const card = document.createElement('div');
-                    card.className = "candidate-card";
+                    card.className = "candidate-card flex flex-col items-center mt-4";
                     card.onclick = () => confirmVote(c.number, c.name, c.imageUrl);
                     card.innerHTML = `
-                        <div>
-                            <div class="number-badge"><span>${c.number}</span></div>
-                            <img src="${c.imageUrl}" onerror="this.src='https://via.placeholder.com/300'">
-                            <h3 class="text-xl mt-4 font-medium text-gray-800 text-center leading-tight line-clamp-2">${c.name}</h3>
-                        </div>
+                        <div class="number-badge"><span>${c.number}</span></div>
+                        <img src="${c.imageUrl}" onerror="this.src='https://via.placeholder.com/300'">
+                        <h3 class="text-xl mt-4 font-medium text-gray-800 text-center leading-tight line-clamp-1">${c.name}</h3>
                         <div class="mt-3 bg-blue-50 px-4 py-2 rounded-full w-full text-center text-sm text-theme-blue font-medium mt-auto"><span class="vote-btn-text">แตะเพื่อเลือก</span></div>
                     `;
                     render.appendChild(card);
@@ -550,8 +541,9 @@
                         <button onclick="delCConfirm('${id}', ${c.number}, '${c.name}')" class="text-theme-red hover:bg-red-100 p-1.5 rounded transition"><i class="fas fa-trash-can"></i></button>`;
                     adminList.appendChild(li);
                 });
-                if(voteChartVertical && voteChartHorizontal) initVoteStats(); 
-                renderLiveCartoons(); // อัปเดตตัวการ์ตูนในหน้า Live
+                
+                // Initialize Charts once we have candidate data
+                if(!voteListener) { initVoteStats(); }
             });
         }
 
@@ -572,10 +564,8 @@
             Swal.fire({title: 'กำลังส่งคะแนน...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
             try {
                 await db.collection('votes').add({ votedFor: num, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                Swal.fire({ icon: 'success', title: 'โหวตสำเร็จ!', text: 'ระบบจะรีเซ็ตเพื่อเตรียมรับคนถัดไป', showConfirmButton: false, timer: 1500 })
-                .then(() => { 
-                    document.getElementById('voterView').scrollTo({ top: 0, behavior: 'smooth' }); 
-                }); 
+                Swal.fire({ icon: 'success', title: 'โหวตสำเร็จ!', text: 'ขอบคุณที่ใช้สิทธิ์', showConfirmButton: false, timer: 1500 })
+                .then(() => { document.getElementById('voterView').scrollTo({ top: 0, behavior: 'smooth' }); }); 
             } catch(e) {}
         }
 
@@ -611,7 +601,7 @@
         // ✅ 5. Dashboard (แยก 2 กราฟ : แนวตั้ง & แนวนอน)
         // ----------------------------------------------------
         
-        // Plugin สำหรับกราฟแนวนอน (โชว์ตัวเลขหลังบาร์)
+        // Plugin สำหรับกราฟแนวนอน
         const horizontalLabelPlugin = {
             id: 'horizontalLabels',
             afterDatasetsDraw(chart) {
@@ -626,20 +616,18 @@
         };
 
         function initVoteStats() {
-            if(voteListener) return;
+            if(voteListener) return; 
 
-            // กราฟแนวตั้ง
+            // กราฟแนวตั้ง (Dashboard)
             const ctxV = document.getElementById('voteChartVertical').getContext('2d');
-            if(voteChartVertical) voteChartVertical.destroy();
             voteChartVertical = new Chart(ctxV, {
                 type: 'bar',
                 data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 6 }] },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {family: 'Kanit'} } }, x: { ticks: {font: {family: 'Kanit'}}} }, plugins: { legend: {display:false}, tooltip: {titleFont: {family: 'Kanit'}, bodyFont: {family: 'Kanit'}} } }
             });
 
-            // กราฟแนวนอน
+            // กราฟแนวนอน (Dashboard สรุป)
             const ctxH = document.getElementById('voteChartHorizontal').getContext('2d');
-            if(voteChartHorizontal) voteChartHorizontal.destroy();
             voteChartHorizontal = new Chart(ctxH, {
                 type: 'bar',
                 data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 6 }] },
@@ -647,9 +635,8 @@
                 options: { indexAxis: 'y', layout: { padding: { right: 80 } }, responsive: true, maintainAspectRatio: false, scales: { x: { display: false, beginAtZero: true }, y: { ticks: {font: {family: 'Kanit'}}, grid: {display: false} } }, plugins: { legend: {display:false}, tooltip: {enabled: false} } }
             });
 
-            // กราฟ Live
+            // กราฟ Live Dashboard (Modal ขยาย)
             const ctxL = document.getElementById('liveVoteChart').getContext('2d');
-            if(liveVoteChart) liveVoteChart.destroy();
             liveVoteChart = new Chart(ctxL, {
                 type: 'bar',
                 data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 8 }] },
@@ -671,63 +658,66 @@
 
                 document.getElementById('totalVotes').innerText = `${currentTotalVotes} คน`;
                 document.getElementById('liveTotalVotes').innerText = currentTotalVotes;
+                document.getElementById('exportTotalVotes').innerText = currentTotalVotes;
 
-                // โหลด Voter Logs เรียลไทม์เข้า Modal ด้วย
                 loadLiveVoteLogs(snap);
+                updateExportTable(sorted, res);
             });
         }
 
-        // ✅ Live Dashboard Modal Logic
-        function openLiveDashboard() {
-            document.getElementById('liveDashboardModal').style.display = 'block';
-            if(liveVoteChart) setTimeout(() => liveVoteChart.resize(), 200);
-            renderLiveCartoons();
-        }
-        function closeLiveDashboard() { document.getElementById('liveDashboardModal').style.display = 'none'; }
-        
-        // วาดตัวการ์ตูน
-        function renderLiveCartoons() {
-            const container = document.getElementById('liveCartoonsContainer');
-            container.innerHTML = "";
-            const sorted = Object.keys(cData).sort((a,b) => a-b);
-            sorted.forEach(k => {
-                const c = cData[k];
-                // ใช้ API สร้างรูปอีโมจิตามชื่อ
-                const svgUrl = `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${encodeURIComponent(c.name)}`;
-                container.innerHTML += `
-                    <div class="flex flex-col items-center min-w-[70px] bg-gray-50 p-2 rounded-xl border border-gray-100">
-                        <img src="${svgUrl}" class="w-10 h-10 rounded-full mb-1 border-2 bg-white" style="border-color:${c.color}">
-                        <span class="text-[10px] font-bold text-gray-700">เบอร์ ${k}</span>
-                    </div>
+        // ✅ อัปเดตตารางสรุปผลในแท็บส่งออก
+        function updateExportTable(sortedList, resultsObj) {
+            const tbody = document.getElementById('exportTableBody');
+            tbody.innerHTML = "";
+            sortedList.forEach(k => {
+                let v = resultsObj[k] || 0;
+                let p = currentTotalVotes > 0 ? Math.round((v / currentTotalVotes)*100) : 0;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="border-b border-gray-200 px-4 py-3 text-center font-bold text-theme-blue">${k}</td>
+                        <td class="border-b border-gray-200 px-4 py-3">${cData[k] ? cData[k].name : 'ไม่ทราบชื่อ'}</td>
+                        <td class="border-b border-gray-200 px-4 py-3 text-center font-bold text-gray-800">${v}</td>
+                        <td class="border-b border-gray-200 px-4 py-3 text-center">${p}%</td>
+                    </tr>
                 `;
             });
         }
 
-        // โหลดประวัติเข้า Modal Live
+        // ✅ โหลดประวัติเข้า Modal Live (วงกลมสีตามเบอร์)
         function loadLiveVoteLogs(snap) {
             const t = document.getElementById('liveLogsContainer');
             t.innerHTML = "";
             if(snap.empty) { t.innerHTML = '<p class="text-xs text-center text-gray-400 py-4">ยังไม่มีข้อมูลโหวต</p>'; return; }
             
-            // ดึงข้อมูลและเรียงลำดับเวลา
             let logs = [];
             snap.forEach(d => logs.push(d.data()));
             logs.sort((a,b) => {
-                let tA = a.timestamp ? a.timestamp.toMillis() : 0;
-                let tB = b.timestamp ? b.timestamp.toMillis() : 0;
+                let tA = a.timestamp ? a.timestamp.toMillis() : Date.now();
+                let tB = b.timestamp ? b.timestamp.toMillis() : Date.now();
                 return tB - tA;
             });
 
             logs.slice(0, 30).forEach(l => {
-                const date = l.timestamp ? l.timestamp.toDate().toLocaleTimeString('th-TH') : "เมื่อครู่";
+                const dateObj = l.timestamp ? l.timestamp.toDate() : new Date();
+                const dateStr = dateObj.toLocaleDateString('th-TH');
+                const timeStr = dateObj.toLocaleTimeString('th-TH');
+                const color = (cData[l.votedFor] && cData[l.votedFor].color) ? cData[l.votedFor].color : '#cccccc';
+                
                 t.innerHTML += `
-                    <div class="p-3 border-b border-gray-50 flex justify-between items-center text-sm hover:bg-gray-50">
-                        <span class="text-xs text-gray-400"><i class="far fa-clock mr-1"></i>${date}</span>
-                        <span class="font-medium text-gray-700 bg-gray-100 px-2 py-1 rounded">ผู้ลงคะแนนโหวตเบอร์ ${l.votedFor}</span>
+                    <div class="p-3 border-b border-gray-50 flex items-center gap-3 text-sm hover:bg-gray-50">
+                        <div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${color};"></div>
+                        <span class="text-xs text-gray-500 w-32">${dateStr} ${timeStr}</span>
+                        <span class="font-medium text-gray-700">มีผู้ลงคะแนนให้ เบอร์ ${l.votedFor}</span>
                     </div>
                 `;
             });
         }
+
+        function openLiveDashboard() {
+            document.getElementById('liveDashboardModal').style.display = 'block';
+            if(liveVoteChart) setTimeout(() => liveVoteChart.resize(), 200);
+        }
+        function closeLiveDashboard() { document.getElementById('liveDashboardModal').style.display = 'none'; }
 
         async function resetVotesConfirm() {
             const confirmName = await askAdminName("ล้างคะแนนทั้งหมด");
@@ -746,7 +736,7 @@
         }
 
         async function exportExcelConfirm() {
-            const name = await askAdminName("ดาวน์โหลด Excel");
+            const name = await askAdminName("ดาวน์โหลดตาราง Excel");
             if(name) {
                 const snap = await db.collection('votes').get(); const res = {};
                 snap.forEach(d => { const n = d.data().votedFor; res[n] = (res[n] || 0) + 1; });
@@ -758,42 +748,16 @@
             }
         }
 
+        // ✅ แคปภาพเฉพาะกล่อง Export (ตารางสรุป) ไม่ใช่กราฟ
         async function exportChartConfirm() {
-            const name = await askAdminName("บันทึกกราฟแนวนอนเป็นภาพ");
+            const name = await askAdminName("บันทึกตารางเป็นภาพ (PNG)");
             if(name) {
-                const chartDiv = document.getElementById('cardHorizontal');
-                html2canvas(chartDiv, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
-                    const a = document.createElement('a'); a.download = 'Summary_Chart.png';
-                    a.href = canvas.toDataURL(); a.click(); recordLog(`บันทึกภาพกราฟสรุปผล`, name);
+                const captureDiv = document.getElementById('exportSummaryData');
+                html2canvas(captureDiv, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+                    const a = document.createElement('a'); a.download = 'Summary_Table.png';
+                    a.href = canvas.toDataURL(); a.click(); recordLog(`บันทึกภาพตารางสรุปผล`, name);
                 });
             }
-        }
-
-        // ----------------------------------------------------
-        // ✅ 6. Audit Logs & Vote Logs
-        // ----------------------------------------------------
-        function loadAdminLogs() {
-            const t = document.getElementById('adminLogsTable');
-            db.collection('audit_logs').orderBy('timestamp', 'desc').limit(50).onSnapshot(snap => {
-                t.innerHTML = "";
-                if(snap.empty) { t.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-400 text-xs">ไม่มีประวัติ</td></tr>'; return; }
-                snap.forEach(d => {
-                    const l = d.data(); const date = l.timestamp ? l.timestamp.toDate().toLocaleString('th-TH') : "เมื่อครู่";
-                    t.innerHTML += `<tr><td class="px-5 py-3 text-[11px] text-gray-500">${date}</td><td class="px-5 py-3 font-bold text-gray-800">${l.admin}</td><td class="px-5 py-3">${l.action}</td></tr>`;
-                });
-            });
-        }
-
-        function loadVoteLogs() {
-            const t = document.getElementById('voteLogsTable');
-            db.collection('votes').orderBy('timestamp', 'desc').limit(50).onSnapshot(snap => {
-                t.innerHTML = "";
-                if(snap.empty) { t.innerHTML = '<tr><td colspan="2" class="text-center py-4 text-gray-400 text-xs">ยังไม่มีการโหวต</td></tr>'; return; }
-                snap.forEach(d => {
-                    const l = d.data(); const date = l.timestamp ? l.timestamp.toDate().toLocaleString('th-TH') : "เมื่อครู่";
-                    t.innerHTML += `<tr><td class="px-5 py-3 text-[11px] text-gray-500">${date}</td><td class="px-5 py-3 font-medium text-gray-700">มีผู้ลงคะแนนให้ เบอร์ ${l.votedFor}</td></tr>`;
-                });
-            });
         }
 
         listenToTime(); loadCandidates();
