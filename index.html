@@ -7,7 +7,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="เลือกตั้ง 2569">
     <link rel="apple-touch-icon" href="https://www.banhadsompan.ac.th/_files_school/86101511/data/86101511_0_20240629-000624.png">
-    <link rel="icon" href="https://www.banhadsompan.ac.th/_files_school/86101511/data/86101511_0_20240629-000624.png">
     
     <title>ระบบเลือกตั้งสภานักเรียน 2569 - โรงเรียนบ้านหาดส้มแป้น</title>
     
@@ -36,26 +35,30 @@
 
         .header-modern { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border-bottom: 3px solid #e11d48; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
 
-        /* ✅ ปรับการ์ดเลือกเบอร์ให้พอดีรูป 3:4 */
+        /* ✅ ปรับการ์ดเลือกเบอร์ให้พอดีจอ ไม่ต้องเลื่อน (No Scroll) */
         .candidate-card {
-            background: white; border-radius: 20px; padding: 24px 24px;
+            background: white; border-radius: 20px; padding: 16px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.05);
             border: 1px solid #f1f5f9; transition: all 0.3s ease; position: relative; cursor: pointer;
-            width: 100%; max-width: 380px; margin: 0 auto;
+            width: 100%; max-width: 300px; margin: 0 auto;
+            margin-top: 25px; /* เว้นที่ให้วงกลมเบอร์ */
         }
         .candidate-card img {
             width: 100%;
-            aspect-ratio: 3/4; /* ✅ ล็อกสัดส่วน 1086x1448 px ให้สวยพอดี */
+            height: 32vh; /* ✅ ปรับความสูงตามสัดส่วนจอ iPad เพื่อไม่ให้ทะลุจอ */
+            max-height: 260px;
+            aspect-ratio: 3/4; /* ✅ ล็อกสัดส่วนภาพ 1086x1448 px */
             object-fit: cover;
             object-position: top;
             border-radius: 12px;
         }
         .candidate-card:hover { transform: translateY(-4px); border-color: #1e40af; box-shadow: 0 12px 30px rgba(30, 64, 175, 0.1); }
+        
         .number-badge {
             background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: 4px solid white; 
-            box-shadow: 0 6px 12px rgba(225, 29, 72, 0.2); position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            box-shadow: 0 6px 12px rgba(225, 29, 72, 0.2); position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
             display: flex; justify-content: center; align-items: center; border-radius: 50%;
-            width: 60px; height: 60px; font-size: 1.8rem; font-weight: 600;
+            width: 55px; height: 55px; font-size: 1.6rem; font-weight: 600;
         }
 
         .countdown-box { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
@@ -69,14 +72,14 @@
 
         .swal-custom-input { font-family: 'Kanit', sans-serif !important; }
         
-        /* ✅ ปุ่มคู่มือล่องหน มุมซ้ายล่างเหนือฟุตเตอร์ */
+        /* ✅ ปุ่มคู่มือล่องหน ย้ายมาขวาบนของฟุตเตอร์ */
         .guide-btn {
-            position: fixed; bottom: 80px; left: 20px;
+            position: absolute; bottom: 100%; right: 20px; margin-bottom: 12px;
             background: white; color: #64748b;
-            padding: 10px 16px; border-radius: 30px;
-            font-size: 0.9rem; cursor: pointer; border: 1px solid #e2e8f0; 
-            opacity: 0.3; transition: all 0.3s ease; z-index: 40;
-            display: flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 30px;
+            font-size: 0.85rem; cursor: pointer; border: 1px solid #e2e8f0; 
+            opacity: 0.4; transition: all 0.3s ease; z-index: 40;
+            display: flex; align-items: center; gap: 6px;
         }
         .guide-btn:hover { opacity: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: #1e40af; border-color: #1e40af; }
 
@@ -88,47 +91,58 @@
 </head>
 <body>
 
-    <div id="voterView" class="w-full min-h-screen flex flex-col">
+    <div id="voterView" class="w-full h-[100dvh] flex flex-col overflow-hidden">
         
-        <header class="header-modern sticky top-0 z-40 py-5">
-            <div class="container mx-auto px-4 flex flex-col items-center text-center relative">
-                <img src="https://www.banhadsompan.ac.th/_files_school/86101511/data/86101511_0_20240629-000624.png" class="w-16 h-16 mb-2" alt="Logo">
-                <h1 class="text-2xl md:text-3xl font-semibold text-theme-blue tracking-wide">ระบบเลือกตั้งสภานักเรียน</h1>
-                <h2 class="text-lg md:text-xl font-normal text-theme-red mt-1">ประจำปีการศึกษา 2569</h2>
-                <h3 class="text-sm md:text-base font-light text-gray-500 mt-1">โรงเรียนบ้านหาดส้มแป้น</h3>
-                <button onclick="authAdmin()" class="absolute top-2 right-4 text-gray-300 hover:text-theme-blue text-lg p-2 transition">
+        <header class="header-modern sticky top-0 z-40 py-3 flex-shrink-0">
+            <div class="container mx-auto px-4 flex justify-center items-center gap-4 md:gap-6 relative">
+                <img src="https://www.banhadsompan.ac.th/_files_school/86101511/data/86101511_0_20240629-000624.png" class="w-16 h-16 md:w-20 md:h-20" alt="Logo">
+                <div class="text-left">
+                    <h1 class="text-xl md:text-3xl font-semibold text-theme-blue tracking-wide leading-tight">ระบบเลือกตั้งสภานักเรียน ประจำปีการศึกษา 2569</h1>
+                    <h2 class="text-base md:text-xl font-normal text-theme-red mt-1">โรงเรียนบ้านหาดส้มแป้น</h2>
+                </div>
+                <button onclick="authAdmin()" class="absolute top-1/2 -translate-y-1/2 right-4 text-gray-300 hover:text-theme-blue text-xl p-2 transition">
                     <i class="fas fa-cog"></i>
                 </button>
             </div>
         </header>
 
-        <main class="container mx-auto px-4 pt-6 pb-16 flex-grow flex flex-col items-center">
+        <main class="w-full flex-grow flex flex-col items-center justify-center px-4 overflow-hidden">
             
-            <div id="timeStatusBox" class="hidden-view countdown-box p-8 w-full max-w-2xl text-center mt-4">
+            <div id="timeStatusBox" class="hidden-view countdown-box p-6 w-full max-w-2xl text-center">
                 <h2 class="text-xl font-semibold text-theme-blue mb-2">ระบบเลือกตั้งสภานักเรียน ประจำปีการศึกษา 2569</h2>
-                <p id="statusDesc" class="text-base text-gray-500 mb-6 font-light">จะเปิดให้ลงคะแนนเสียงในอีก...</p>
-                <div id="timerDisplay" class="flex justify-center gap-3 mb-6"></div>
-                <div class="border-t border-gray-100 pt-5 mt-4">
+                <p id="statusDesc" class="text-base text-gray-500 mb-4 font-light">จะเปิดให้ลงคะแนนเสียงในอีก...</p>
+                <div id="timerDisplay" class="flex justify-center gap-3 mb-4"></div>
+                <div class="border-t border-gray-100 pt-4 mt-2">
                     <p class="text-base font-medium text-gray-700">ณ โรงเรียนบ้านหาดส้มแป้น</p>
                     <p class="text-sm text-theme-red mt-1"><i class="fas fa-map-marker-alt mr-2"></i>สถานที่: <span id="locationDisplay">กำลังโหลด...</span></p>
                 </div>
             </div>
 
-            <div id="votingGrid" class="w-full max-w-4xl mt-2">
-                <div id="candidates-render" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 justify-items-center pt-6">
+            <div id="votingGrid" class="w-full max-w-3xl">
+                <div id="candidates-render" class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 justify-items-center w-full">
                     <div class="col-span-full py-10 text-gray-400 text-center animate-pulse">
                         <i class="fas fa-spinner fa-spin text-3xl mb-3"></i><p class="font-light">กำลังโหลดข้อมูลผู้สมัคร...</p>
                     </div>
                 </div>
             </div>
+
+            <div id="summaryGrid" class="hidden-view w-full max-w-3xl text-center">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                    <i class="fas fa-flag-checkered text-4xl text-theme-blue mb-3"></i>
+                    <h2 class="text-2xl font-semibold text-theme-blue mb-2">สิ้นสุดการลงคะแนนเสียง</h2>
+                    <p class="text-gray-500 font-light mb-4">ขอบคุณนักเรียนทุกคนที่มาร่วมใช้สิทธิ์</p>
+                    <div id="summaryResults" class="grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center"></div>
+                </div>
+            </div>
         </main>
 
-        <button onclick="showGuide()" class="guide-btn"><i class="fas fa-question-circle"></i> คู่มือการใช้งาน</button>
-
-        <footer class="text-center py-6 border-t border-gray-200 bg-white w-full mt-auto">
-            <div class="text-gray-600 font-medium text-sm">งานสภานักเรียน - โรงเรียนบ้านหาดส้มแป้น</div>
-            <div class="text-gray-400 text-xs font-light mt-1">โดย ครูลลิตา โชครักษ์</div>
-        </footer>
+        <div class="relative w-full flex-shrink-0">
+            <button onclick="showGuide()" class="guide-btn"><i class="fas fa-question-circle"></i> คู่มือการใช้งาน</button>
+            <footer class="text-center py-4 border-t border-gray-200 bg-white w-full">
+                <div class="text-gray-600 font-medium text-sm">งานสภานักเรียน - โรงเรียนบ้านหาดส้มแป้น</div>
+                <div class="text-gray-400 text-xs font-light mt-1">โดย ครูลลิตา โชครักษ์</div>
+            </footer>
+        </div>
     </div>
 
 
@@ -165,14 +179,12 @@
         <main class="main-content">
             <div id="admin-dashboard-view" class="admin-tab">
                 <h1 class="text-2xl font-semibold text-gray-800 mb-6">ภาพรวมผลคะแนน (Real-time)</h1>
-                
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                     <div id="chartCard" class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm col-span-1 lg:col-span-2 relative">
                         <button onclick="toggleChartExpand()" class="expand-btn" title="ขยาย/ย่อ กราฟ"><i id="expandIcon" class="fas fa-expand"></i></button>
                         <h3 class="text-gray-500 font-medium text-sm mb-4">สัดส่วนคะแนนโหวต (กราฟแนวนอน)</h3>
                         <div id="chartFrame" class="h-80 w-full"><canvas id="voteChart"></canvas></div>
                     </div>
-                    
                     <div class="flex flex-col gap-4">
                         <div class="bg-gradient-to-r from-blue-700 to-blue-500 p-5 rounded-2xl shadow-sm flex items-center gap-4 text-white">
                             <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-xl"><i class="fas fa-users"></i></div>
@@ -263,7 +275,6 @@
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
@@ -288,11 +299,8 @@
         let timerInterval = null;
         let currentPhase = null; 
         let cData = {}; 
-        let currentTotalVotes = 0; // เก็บยอดปัจจุบันไว้เช็คลิมิต
+        let currentTotalVotes = 0; 
 
-        // ----------------------------------------------------
-        // คู่มือการใช้งาน (ล่องหนมุมซ้ายล่าง)
-        // ----------------------------------------------------
         function showGuide() {
             Swal.fire({
                 title: '<h3 class="font-semibold text-theme-blue font-kanit">คู่มือการลงคะแนน</h3>',
@@ -302,7 +310,7 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 2. ระบบ Login & ยืนยันตัวตน (ขยายฟอนต์ให้อ่านง่าย)
+        // ✅ 2. ระบบ Login & ยืนยันตัวตน
         // ----------------------------------------------------
         async function authAdmin() {
             const { value: formValues } = await Swal.fire({
@@ -398,11 +406,11 @@
                 const now = new Date().getTime();
                 const box = document.getElementById('timeStatusBox');
                 const grid = document.getElementById('votingGrid');
+                const summary = document.getElementById('summaryGrid');
                 const display = document.getElementById('timerDisplay');
                 
                 let newPhase = 'voting';
 
-                // ถ้ายอดถึง limit ปิดโหวตทันที
                 if(timeSettings.limit > 0 && currentTotalVotes >= timeSettings.limit) {
                     newPhase = 'ended';
                 } else if(!timeSettings.start || !timeSettings.end) {
@@ -418,18 +426,17 @@
                     newPhase = 'ended';
                 }
 
-                // รีเฟรชถ้าสเตตัสเปลี่ยน
                 if (currentPhase && currentPhase !== newPhase) { window.location.reload(); }
                 currentPhase = newPhase;
 
                 if(newPhase === 'waiting') {
-                    box.classList.remove('hidden-view'); grid.classList.add('hidden-view');
+                    box.classList.remove('hidden-view'); grid.classList.add('hidden-view'); summary.classList.add('hidden-view');
                 } else if(newPhase === 'voting') {
-                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view');
+                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view'); summary.classList.add('hidden-view');
                     document.querySelectorAll('.vote-btn-text').forEach(el => { el.innerText = "แตะเพื่อเลือก"; el.parentElement.classList.replace('bg-gray-100','bg-blue-50'); el.parentElement.classList.replace('text-gray-400','text-theme-blue'); });
                 } else if(newPhase === 'ended') {
                     // ✅ เวลาจบ ยังโชว์การ์ดแต่กดไม่ได้
-                    box.classList.remove('hidden-view'); grid.classList.remove('hidden-view');
+                    box.classList.remove('hidden-view'); grid.classList.remove('hidden-view'); summary.classList.add('hidden-view');
                     document.getElementById('statusDesc').innerText = "สิ้นสุดการลงคะแนน หรือ ครบจำนวนผู้ใช้สิทธิ์แล้ว";
                     display.innerHTML = '<i class="fas fa-box-open text-gray-300 text-6xl my-4"></i>';
                     document.querySelectorAll('.vote-btn-text').forEach(el => { el.innerText = "ปิดลงคะแนน"; el.parentElement.classList.replace('bg-blue-50','bg-gray-100'); el.parentElement.classList.replace('text-theme-blue','text-gray-400'); });
@@ -453,7 +460,7 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 4. จัดการผู้สมัคร & โหวต (เพิ่มตั้งค่าสีกราฟ)
+        // ✅ 4. จัดการผู้สมัคร & โหวต
         // ----------------------------------------------------
         async function loadCandidates() {
             const render = document.getElementById('candidates-render'); const adminList = document.getElementById('adminList');
@@ -469,8 +476,8 @@
                     card.innerHTML = `
                         <div class="number-badge"><span>${c.number}</span></div>
                         <img src="${c.imageUrl}" class="mt-4 mb-3 border border-gray-100" onerror="this.src='https://via.placeholder.com/300'">
-                        <h3 class="text-xl font-medium text-gray-800 text-center leading-tight line-clamp-1">${c.name}</h3>
-                        <div class="mt-3 bg-blue-50 px-4 py-2 rounded-full w-full text-center text-sm text-theme-blue font-medium"><span class="vote-btn-text">แตะเพื่อเลือก</span></div>
+                        <h3 class="text-lg font-medium text-gray-800 text-center leading-tight line-clamp-1">${c.name}</h3>
+                        <div class="mt-3 bg-blue-50 px-4 py-1.5 rounded-full w-full text-center text-sm text-theme-blue font-medium"><span class="vote-btn-text">แตะเพื่อเลือก</span></div>
                     `;
                     render.appendChild(card);
 
@@ -484,7 +491,7 @@
                         <button onclick="delCConfirm('${id}', ${c.number}, '${c.name}')" class="text-theme-red hover:bg-red-100 p-1.5 rounded transition"><i class="fas fa-trash-can"></i></button>`;
                     adminList.appendChild(li);
                 });
-                if(voteChart) initVoteStats(); // อัปเดตสีกราฟใหม่
+                if(voteChart) initVoteStats(); 
             });
         }
 
@@ -539,18 +546,17 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 5. Dashboard (กราฟแนวนอน + ตัวเลข)
+        // ✅ 5. Dashboard (กราฟแนวนอน)
         // ----------------------------------------------------
         function initVoteStats() {
             const ctx = document.getElementById('voteChart').getContext('2d');
             if(voteChart) voteChart.destroy();
             
-            // สร้างกราฟแนวนอน
             voteChart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels: [], datasets: [{ label: 'คะแนน', data: [], backgroundColor: [], borderRadius: 6 }] },
                 options: { 
-                    indexAxis: 'y', // ✅ กราฟแนวนอน
+                    indexAxis: 'y', 
                     responsive: true, maintainAspectRatio: false, 
                     scales: { 
                         x: { beginAtZero: true, ticks: { stepSize: 1, font: {family: 'Kanit'} } }, 
@@ -572,18 +578,17 @@
             });
 
             db.collection('votes').onSnapshot(snap => {
-                currentTotalVotes = snap.size; // เก็บยอดทั้งหมด
+                currentTotalVotes = snap.size; 
                 const res = {}; snap.forEach(d => { const n = d.data().votedFor; res[n] = (res[n] || 0) + 1; });
-                const sorted = Object.keys(cData).sort((a,b) => a-b); // ดึงคีย์จาก cData เพื่อให้เห็นคนไม่ได้คะแนนด้วย
+                const sorted = Object.keys(cData).sort((a,b) => a-b); 
                 
                 const labels = sorted.map(k => `เบอร์ ${k}`); 
                 const data = sorted.map(k => res[k] || 0);
-                const colors = sorted.map(k => cData[k].color); // ดึงสีเฉพาะเบอร์
+                const colors = sorted.map(k => cData[k].color); 
                 
                 voteChart.data.labels = labels; voteChart.data.datasets[0].data = data; voteChart.data.datasets[0].backgroundColor = colors; voteChart.update();
                 document.getElementById('totalVotes').innerText = `${currentTotalVotes} คน`;
 
-                // อัปเดตลิสต์ด้านขวาโชว์เปอร์เซ็นต์
                 const statList = document.getElementById('liveStatsList'); statList.innerHTML = "";
                 sorted.forEach(k => {
                     let v = res[k] || 0;
@@ -646,9 +651,6 @@
             }
         }
 
-        // ----------------------------------------------------
-        // ✅ 6. Audit Logs
-        // ----------------------------------------------------
         function loadAdminLogs() {
             const t = document.getElementById('adminLogsTable');
             db.collection('audit_logs').orderBy('timestamp', 'desc').limit(50).onSnapshot(snap => {
@@ -656,7 +658,7 @@
                 if(snap.empty) { t.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-400 text-xs">ไม่มีประวัติ</td></tr>'; return; }
                 snap.forEach(d => {
                     const l = d.data(); const date = l.timestamp ? l.timestamp.toDate().toLocaleString('th-TH') : "เมื่อครู่";
-                    t.innerHTML += `<tr><td class="px-5 py-3 text-[11px] text-gray-500">${date}</td><td class="px-5 py-3 font-medium text-theme-blue">${l.admin}</td><td class="px-5 py-3">${l.action}</td></tr>`;
+                    t.innerHTML += `<tr><td class="px-5 py-3 text-[11px] text-gray-500">${date}</td><td class="px-5 py-3 font-bold text-gray-800">${l.admin}</td><td class="px-5 py-3">${l.action}</td></tr>`;
                 });
             });
         }
