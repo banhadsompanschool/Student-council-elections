@@ -12,7 +12,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,6 +20,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -56,7 +58,7 @@
         }
 
         .countdown-box { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
-        .digit-box { background: #f8fafc; color: #1e40af; padding: 12px 18px; border-radius: 12px; font-weight: 500; font-size: 2.5rem; line-height: 1; border: 1px solid #e2e8f0; }
+        .digit-box { background: #f8fafc; color: #1e40af; padding: 16px 24px; border-radius: 16px; font-weight: 600; font-size: 4rem; line-height: 1; border: 1px solid #e2e8f0; }
 
         .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; background-color: #ffffff; border-right: 1px solid #e2e8f0; z-index: 50; display: flex; flex-direction: column; }
         .main-content { margin-left: 260px; padding: 30px; background-color: #f8fafc; min-height: 100vh; }
@@ -91,10 +93,9 @@
                     <img src="https://www.banhadsompan.ac.th/_files_school/86101511/data/86101511_0_20240629-000624.png" class="h-14 md:h-16 w-auto object-contain" alt="Logo">
                 </div>
 
-                <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full max-w-2xl z-0 pointer-events-none px-4 mt-1">
-                    <h1 class="text-xl md:text-3xl font-bold text-theme-blue tracking-wide leading-tight">ระบบเลือกตั้งสภานักเรียน</h1>
-                    <h2 class="text-base md:text-xl font-medium text-theme-red mt-1">ประจำปีการศึกษา 2569</h2>
-                    <h3 class="text-xs md:text-base font-light text-gray-500 mt-1">โรงเรียนบ้านหาดส้มแป้น <span id="headerLocationDisplay" class="hidden md:inline"></span></h3>
+                <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full max-w-2xl z-0 pointer-events-none px-4">
+                    <h1 class="text-xl md:text-2xl font-medium text-theme-blue tracking-wide leading-tight">ระบบเลือกตั้งสภานักเรียน ประจำปีการศึกษา 2569</h1>
+                    <h2 class="text-sm md:text-lg font-light text-theme-red mt-1">โรงเรียนบ้านหาดส้มแป้น <span id="headerLocationDisplay" class="hidden md:inline"></span></h2>
                 </div>
 
                 <div class="z-10 w-24 text-right">
@@ -107,14 +108,9 @@
 
         <main class="w-full flex-grow flex flex-col items-center justify-center px-4 overflow-hidden">
             
-            <div id="timeStatusBox" class="hidden-view countdown-box p-8 w-full max-w-2xl text-center">
-                <h2 class="text-2xl font-bold text-theme-blue mb-2">ระบบเลือกตั้งสภานักเรียน ประจำปีการศึกษา 2569</h2>
-                <h3 class="text-xl text-theme-red font-medium mb-6">เวลาถอยหลัง</h3>
-                <div id="timerDisplay" class="flex justify-center gap-3 mb-6"></div>
-                <div class="border-t border-gray-100 pt-5 mt-4">
-                    <p class="text-lg font-medium text-gray-700">ณ โรงเรียนบ้านหาดส้มแป้น</p>
-                    <p class="text-base text-gray-500 mt-1">สถานที่: <span id="locationDisplay">กำลังโหลด...</span></p>
-                </div>
+            <div id="timeStatusBox" class="hidden-view countdown-box p-10 w-full max-w-2xl text-center">
+                <h2 class="text-2xl font-medium text-theme-blue mb-8">ระบบเลือกตั้งสภานักเรียน ประจำปีการศึกษา 2569</h2>
+                <div id="timerDisplay" class="flex justify-center items-center gap-4"></div>
             </div>
 
             <div id="votingGrid" class="w-full max-w-3xl">
@@ -122,6 +118,15 @@
                     <div class="col-span-full py-10 text-gray-400 text-center animate-pulse">
                         <i class="fas fa-spinner fa-spin text-3xl mb-3"></i><p class="font-light">กำลังโหลดข้อมูลผู้สมัคร...</p>
                     </div>
+                </div>
+            </div>
+
+            <div id="summaryGrid" class="hidden-view w-full max-w-3xl text-center">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                    <i class="fas fa-flag-checkered text-4xl text-theme-blue mb-3"></i>
+                    <h2 class="text-2xl font-medium text-theme-blue mb-2">สิ้นสุดการลงคะแนนเสียง</h2>
+                    <p class="text-gray-500 font-light mb-4">ขอบคุณนักเรียนทุกคนที่มาร่วมใช้สิทธิ์</p>
+                    <div id="summaryResults" class="grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center"></div>
                 </div>
             </div>
         </main>
@@ -241,7 +246,6 @@
                         <thead class="bg-gray-50 text-gray-500 text-xs font-medium"><tr><th class="px-5 py-3">เวลาที่โหวต</th><th class="px-5 py-3">รายการ</th></tr></thead>
                         <tbody id="voteLogsTable" class="text-sm text-gray-600 divide-y divide-gray-100"></tbody>
                     </table>
-                    <p class="text-xs text-gray-400 p-3 bg-gray-50 text-center">* ระบบเก็บเป็นความลับ ไม่แสดงชื่อผู้โหวตเพื่อความโปร่งใส</p>
                 </div>
             </div>
 
@@ -265,8 +269,7 @@
                                     <th class="border-b border-gray-200 px-4 py-3 text-center w-24">ร้อยละ (%)</th>
                                 </tr>
                             </thead>
-                            <tbody id="exportTableBody" class="text-sm text-gray-700 divide-y divide-gray-100">
-                                </tbody>
+                            <tbody id="exportTableBody" class="text-sm text-gray-700 divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
                 </div>
@@ -346,6 +349,7 @@
         let currentPhase = null; 
         let cData = {}; 
         let currentTotalVotes = 0; 
+        let isSummarized = false;
 
         function showGuide() {
             Swal.fire({
@@ -356,14 +360,14 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 2. ระบบ Login & ยืนยันตัวตน
+        // ✅ 2. ระบบ Login แอดมิน (เอา Placeholder ออกแล้ว 100%)
         // ----------------------------------------------------
         async function authAdmin() {
             const { value: formValues } = await Swal.fire({
                 title: '<h2 class="text-3xl font-semibold text-theme-blue font-kanit">เข้าสู่ระบบผู้ดูแล</h2>',
                 html: `
                     <div class="relative mt-4 text-left">
-                        <input id="swal-pass" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-theme-blue outline-none font-kanit text-lg" placeholder="กรอกรหัสผ่าน (Bhsp2026)">
+                        <input id="swal-pass" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-theme-blue outline-none font-kanit text-lg" placeholder="กรอกรหัสผ่าน">
                         <button type="button" class="absolute right-3 top-3 text-gray-400 hover:text-theme-blue" onclick="const p = document.getElementById('swal-pass'); const i = document.getElementById('eye-icon'); if(p.type==='password'){p.type='text'; i.classList.replace('fa-eye','fa-eye-slash');}else{p.type='password'; i.classList.replace('fa-eye-slash','fa-eye');}">
                             <i id="eye-icon" class="fas fa-eye text-xl mt-1"></i>
                         </button>
@@ -429,7 +433,7 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 3. ระบบเวลา & โควตา (แก้บัคข้ามเฟส)
+        // ✅ 3. ระบบเวลา & โควตา (แก้นับถอยหลัง)
         // ----------------------------------------------------
         function listenToTime() {
             db.collection('settings').doc('electionTime').onSnapshot(doc => {
@@ -437,7 +441,7 @@
                     const data = doc.data();
                     timeSettings.start = (data.startTime && data.startTime !== "") ? new Date(data.startTime).getTime() : null;
                     timeSettings.end = (data.endTime && data.endTime !== "") ? new Date(data.endTime).getTime() : null;
-                    timeSettings.location = data.location || "ไม่ได้ระบุสถานที่";
+                    timeSettings.location = data.location || "";
                     timeSettings.limit = data.voteLimit || 0;
                     
                     if(document.getElementById('setStart')) document.getElementById('setStart').value = data.startTime || "";
@@ -445,8 +449,11 @@
                     if(document.getElementById('setLocation')) document.getElementById('setLocation').value = data.location || "";
                     if(document.getElementById('setLimit')) document.getElementById('setLimit').value = data.voteLimit || 0;
                     
-                    document.getElementById('headerLocationDisplay').innerText = timeSettings.location;
-                    document.getElementById('locationDisplay').innerText = timeSettings.location;
+                    const hLoc = document.getElementById('headerLocationDisplay');
+                    if(hLoc) {
+                        hLoc.innerText = timeSettings.location !== "" ? `ณ ${timeSettings.location}` : "";
+                        if(timeSettings.location !== "") hLoc.classList.remove('hidden'); else hLoc.classList.add('hidden');
+                    }
                 }
                 checkElectionStatus();
             });
@@ -458,40 +465,73 @@
                 const now = new Date().getTime();
                 const box = document.getElementById('timeStatusBox');
                 const grid = document.getElementById('votingGrid');
+                const summary = document.getElementById('summaryGrid');
                 const display = document.getElementById('timerDisplay');
                 
                 let newPhase = 'voting';
 
-                // เช็คลิมิตก่อน
                 if(timeSettings.limit > 0 && currentTotalVotes >= timeSettings.limit) {
                     newPhase = 'ended';
-                } else {
-                    // เช็คเวลา
-                    if (timeSettings.start && now < timeSettings.start) {
-                        newPhase = 'waiting';
-                        let d = timeSettings.start - now;
-                        let h = Math.floor(d / 3600000).toString().padStart(2, '0');
-                        let m = Math.floor((d % 3600000) / 60000).toString().padStart(2, '0');
-                        let s = Math.floor((d % 60000) / 1000).toString().padStart(2, '0');
-                        display.innerHTML = `<div class="digit-box">${h}</div><span class="text-3xl text-gray-400 mt-2">:</span><div class="digit-box">${m}</div><span class="text-3xl text-gray-400 mt-2">:</span><div class="digit-box">${s}</div>`;
-                    } else if (timeSettings.end && now >= timeSettings.end) {
-                        newPhase = 'ended';
-                    }
+                } else if(!timeSettings.start || !timeSettings.end) {
+                    newPhase = 'voting';
+                } else if(now < timeSettings.start) {
+                    newPhase = 'waiting';
+                    let d = timeSettings.start - now;
+                    let h = Math.floor(d / 3600000).toString().padStart(2, '0');
+                    let m = Math.floor((d % 3600000) / 60000).toString().padStart(2, '0');
+                    let s = Math.floor((d % 60000) / 1000).toString().padStart(2, '0');
+                    // ปรับกล่องเวลาให้คลีนๆ ตามที่ขอ
+                    display.innerHTML = `<div class="digit-box">${h}</div><span class="text-4xl text-gray-400 mt-4">:</span><div class="digit-box">${m}</div><span class="text-4xl text-gray-400 mt-4">:</span><div class="digit-box">${s}</div>`;
+                } else if(now > timeSettings.end) {
+                    newPhase = 'ended';
                 }
 
                 if (currentPhase && currentPhase !== newPhase) { window.scrollTo(0,0); }
                 currentPhase = newPhase;
 
                 if(newPhase === 'waiting') {
-                    box.classList.remove('hidden-view'); grid.classList.add('hidden-view'); 
+                    box.classList.remove('hidden-view'); grid.classList.add('hidden-view'); summary.classList.add('hidden-view');
                 } else if(newPhase === 'voting') {
-                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view'); 
+                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view'); summary.classList.add('hidden-view');
                     document.querySelectorAll('.vote-btn-text').forEach(el => { el.innerText = "แตะเพื่อเลือก"; el.parentElement.classList.replace('bg-gray-100','bg-blue-50'); el.parentElement.classList.replace('text-gray-400','text-theme-blue'); });
                 } else if(newPhase === 'ended') {
-                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view'); // คงการ์ดไว้!
-                    document.querySelectorAll('.vote-btn-text').forEach(el => { el.innerText = "ปิดการลงคะแนน"; el.parentElement.classList.replace('bg-blue-50','bg-gray-100'); el.parentElement.classList.replace('text-theme-blue','text-gray-400'); });
+                    box.classList.add('hidden-view'); grid.classList.add('hidden-view'); summary.classList.remove('hidden-view');
+                    if(!isSummarized) {
+                        renderSummary(); 
+                        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } }); // ✅ โบนัส: จุดพลุฉลองคนชนะ
+                        isSummarized = true;
+                    }
+                    clearInterval(timerInterval);
                 }
             }, 1000);
+        }
+
+        async function renderSummary() {
+            const container = document.getElementById('summaryResults');
+            const snapVotes = await db.collection('votes').get();
+            const res = {}; snapVotes.forEach(d => { const n = d.data().votedFor; res[n] = (res[n] || 0) + 1; });
+            
+            let arr = Object.keys(cData).map(k => ({ num: k, name: cData[k].name, img: cData[k].img, votes: res[k] || 0 }));
+            arr.sort((a,b) => b.votes - a.votes);
+            
+            container.innerHTML = "";
+            arr.forEach((c, index) => {
+                let badge = index === 0 ? '<div class="bg-yellow-400 text-white text-xs px-2 py-1 rounded-full absolute -top-3 -right-3 shadow"><i class="fas fa-crown"></i> ชนะเลิศ</div>' : '';
+                container.innerHTML += `
+                    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 flex items-center gap-4 w-full relative">
+                        ${badge}
+                        <img src="${c.img}" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm">
+                        <div class="text-left flex-grow">
+                            <p class="text-xs text-gray-500">เบอร์ ${c.num}</p>
+                            <h4 class="text-sm font-medium text-gray-800 line-clamp-1">${c.name}</h4>
+                        </div>
+                        <div class="text-center bg-white px-3 py-1 rounded-lg border border-gray-100 flex-shrink-0">
+                            <h3 class="text-xl font-bold text-theme-blue leading-none">${c.votes}</h3>
+                            <p class="text-[10px] text-gray-400">คะแนน</p>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         async function saveSettingsConfirm() {
@@ -503,13 +543,14 @@
                 try {
                     await db.collection('settings').doc('electionTime').set({ startTime: s, endTime: e, location: loc, voteLimit: lim });
                     await recordLog(`ตั้งค่าระบบ (ลิมิต: ${lim}, สถานที่: ${loc})`, name);
+                    isSummarized = false; // รีเซ็ตเพื่อจุดพลุใหม่ถ้าเปิดหีบใหม่
                     Swal.fire('สำเร็จ', 'บันทึกเรียบร้อย', 'success');
                 } catch(err) {}
             }
         }
 
         // ----------------------------------------------------
-        // ✅ 4. จัดการผู้สมัคร & โหวต (ป้องกันบัคกดยืนยันตอนปิดหีบ)
+        // ✅ 4. จัดการผู้สมัคร & โหวต (Soft Reset)
         // ----------------------------------------------------
         async function loadCandidates() {
             const render = document.getElementById('candidates-render'); const adminList = document.getElementById('adminList');
@@ -549,6 +590,7 @@
         function confirmVote(num, name, img) {
             if (currentPhase === 'waiting') { Swal.fire('ยังไม่เปิดหีบ', 'กรุณารอเวลาเปิดลงคะแนนเสียง', 'warning'); return; }
             if (currentPhase === 'ended') { Swal.fire('ปิดหีบแล้ว', 'ระบบสิ้นสุดการลงคะแนนแล้ว', 'warning'); return; }
+            if (timeSettings.limit > 0 && currentTotalVotes >= timeSettings.limit) { Swal.fire('เต็มโควตา', 'มีผู้ใช้สิทธิ์ครบจำนวนแล้ว', 'warning'); return; }
 
             Swal.fire({
                 title: '<h2 class="font-kanit font-medium text-2xl">ยืนยันการลงคะแนน</h2>',
@@ -597,7 +639,7 @@
         }
 
         // ----------------------------------------------------
-        // ✅ 5. Dashboard (แยก 2 กราฟ : แนวตั้ง & แนวนอน)
+        // ✅ 5. Dashboard กราฟและตัวเลข
         // ----------------------------------------------------
         const horizontalLabelPlugin = {
             id: 'horizontalLabels',
@@ -637,7 +679,6 @@
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {family: 'Kanit', size:16} } }, x: { ticks: {font: {family: 'Kanit', size:16}}} }, plugins: { legend: {display:false}, tooltip: {titleFont: {family: 'Kanit', size:16}, bodyFont: {family: 'Kanit', size:16}} } }
             });
 
-            // ✅ ป้องกัน Error เวลา Firebase ส่งข้อมูลมา ให้ครอบ try catch ไว้
             voteListener = db.collection('votes').onSnapshot(snap => {
                 try {
                     currentTotalVotes = snap.size; 
@@ -658,11 +699,10 @@
 
                     loadLiveVoteLogs(snap);
                     updateExportTable(sorted, res);
-                } catch(e) { console.error("Snapshot Error: ", e); }
+                } catch(e) { console.error(e); }
             });
         }
 
-        // ✅ อัปเดตตารางสรุปผลในแท็บส่งออก
         function updateExportTable(sortedList, resultsObj) {
             const tbody = document.getElementById('exportTableBody');
             if(!tbody) return;
@@ -681,7 +721,6 @@
             });
         }
 
-        // ✅ โหลดประวัติเข้า Modal Live (วงกลมสีตามเบอร์) เรียลไทม์!
         function loadLiveVoteLogs(snap) {
             const t = document.getElementById('liveLogsContainer');
             if(!t) return;
@@ -703,10 +742,10 @@
                 const color = (cData[l.votedFor] && cData[l.votedFor].color) ? cData[l.votedFor].color : '#cccccc';
                 
                 t.innerHTML += `
-                    <div class="p-3 border-b border-gray-50 flex items-center gap-3 text-sm hover:bg-gray-50">
+                    <div class="p-3 border-b border-gray-50 flex items-center gap-3 text-sm hover:bg-gray-50 animate-fade-in">
                         <div class="w-4 h-4 rounded-full flex-shrink-0 shadow-sm border border-gray-200" style="background-color: ${color};"></div>
-                        <span class="text-xs text-gray-500 w-32 font-light">${dateStr} ${timeStr}</span>
-                        <span class="font-medium text-gray-700">มีผู้ลงคะแนนให้ เบอร์ ${l.votedFor}</span>
+                        <span class="text-[11px] text-gray-500 w-28 font-light">${dateStr} ${timeStr}</span>
+                        <span class="font-medium text-gray-700">ลงคะแนนให้ เบอร์ ${l.votedFor}</span>
                     </div>
                 `;
             });
@@ -718,6 +757,14 @@
         }
         function closeLiveDashboard() { document.getElementById('liveDashboardModal').style.display = 'none'; }
 
+        function toggleChartExpand() {
+            const card = document.getElementById('cardHorizontal'); const icon = document.getElementById('iconHorizontal');
+            card.classList.toggle('chart-expanded');
+            if(card.classList.contains('chart-expanded')) { icon.classList.replace('fa-expand', 'fa-compress'); } 
+            else { icon.classList.replace('fa-compress', 'fa-expand'); }
+            if(voteChartHorizontal) setTimeout(() => voteChartHorizontal.resize(), 200);
+        }
+
         async function resetVotesConfirm() {
             const confirmName = await askAdminName("ล้างคะแนนทั้งหมด");
             if(confirmName) {
@@ -728,6 +775,7 @@
                         const snap = await db.collection('votes').get(); const batch = db.batch();
                         snap.docs.forEach(d => batch.delete(d.ref)); await batch.commit();
                         await recordLog(`ล้างคะแนนโหวตทั้งหมด (Reset)`, confirmName);
+                        isSummarized = false; // Reset การจุดพลุด้วย
                         Swal.fire('สำเร็จ', 'เริ่มนับใหม่', 'success');
                     } catch(e) {}
                 }
@@ -747,7 +795,6 @@
             }
         }
 
-        // ✅ แคปภาพเฉพาะกล่อง Export (ตารางสรุปผล) เพื่อให้ได้ผลลัพธ์เป็นตาราง ไม่ใช่กราฟเปล่าๆ
         async function exportChartConfirm() {
             const name = await askAdminName("บันทึกตารางเป็นภาพ (PNG)");
             if(name) {
