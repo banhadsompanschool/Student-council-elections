@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบเลือกตั้งสภานักเรียน ปีการศึกษา 2569 - โรงเรียนบ้านหาดส้มแป้น</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #fafafa; color: #333; }
+        .hidden-view { display: none !important; }
+        
+        /* สไตล์สีโรงเรียน */
+        .bg-school-blue { background-color: #1e3a8a; }
+        .text-school-blue { color: #1e3a8a; }
+        .bg-school-red { background-color: #dc2626; }
+        .text-school-red { color: #dc2626; }
+
+        /* หน้าโหวต (Voter View) */
+        .header-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 5px solid #dc2626;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+        .candidate-card {
+            background: white; border-radius: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.04);
+            border: 2px solid #f1f5f9; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .candidate-card:hover { transform: translateY(-10px); border-color: #1e3a8a; box-shadow: 0 30px 60px rgba(30, 58, 138, 0.1); }
+        .number-tag {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: white; border: 8px solid white; top: -40px;
+        }
+
+        /* เมนูแอดมินทางซ้าย (Sidebar) */
+        .sidebar { width: 280px; height: 100vh; position: fixed; left: 0; top: 0; background-color: #ffffff; border-right: 1px solid #f1f5f9; z-index: 50; }
+        .main-content { margin-left: 280px; padding: 40px; background-color: #f8fafc; min-height: 100vh; }
+        .menu-item { padding: 14px 24px; color: #64748b; display: flex; align-items: center; gap: 12px; transition: 0.2s; cursor: pointer; border-radius: 12px; margin: 4px 16px; }
+        .menu-item:hover { background-color: #f1f5f9; color: #1e3a8a; }
+        .menu-active { background-color: #eff6ff; color: #1e3a8a; font-weight: 600; }
+
+        /* Maximize Chart Modal */
+        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        .modal-content { background-color: white; margin: 5vh auto; padding: 30px; border-radius: 20px; width: 90%; height: 90%; max-width: 1200px; }
+        .close-modal { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-modal:hover, .close-modal:focus { color: black; text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: 0.3s; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="voterView" class="block w-full min-h-screen">
+        
+        <header class="header-glass sticky top-0 z-50 py-6 px-10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <img src="https://www.banhadsompan.ac.th/_files_school/86101511/data/86101511_0_20240629-000624.png" class="w-16 h-16 rounded-full shadow-sm" alt="Logo">
+            </div>
+
+            <div class="text-center flex-grow">
+                <h1 class="text-2xl md:text-3xl font-semibold text-school-blue tracking-tight leading-snug">ระบบเลือกตั้งสภานักเรียน</h1>
+                <h1 class="text-xl md:text-2xl font-normal text-school-blue mt-1">ประจำปีการศึกษา 2569</h1>
+                <h2 class="text-base md:text-lg text-gray-400 mt-2 font-light">โรงเรียนบ้านหาดส้มแป้น</h2>
+            </div>
+
+            <button onclick="loginAdmin()" class="absolute top-2 right-2 text-gray-200 hover:text-gray-400 text-sm p-1">
+                <i class="fas fa-cog"></i>
+            </button>
+        </header>
+
+        <main class="container mx-auto px-6 pt-24 pb-32 flex flex-col items-center">
+            
+            <div id="timeStatusBox" class="hidden-view text-center mb-10 p-10 bg-white rounded-3xl border border-gray-100 shadow-sm w-full max-w-2xl">
+                <i id="statusIcon" class="far fa-clock text-7xl text-blue-500 mb-6 animate-pulse"></i>
+                <h3 id="statusTitle" class="text-3xl font-bold text-gray-800 mb-2"></h3>
+                <p id="statusDesc" class="text-gray-500 text-lg"></p>
+                <div id="timerDisplay" class="text-6xl font-bold text-school-red mt-6 tracking-tighter"></div>
+            </div>
+
+            <div id="votingGrid" class="w-full max-w-6xl">
+                <div id="candidates-render" class="grid grid-cols-1 sm:grid-cols-2 gap-12 md:gap-16 justify-items-center">
+                    <div class="col-span-full py-20 text-gray-300 text-center animate-pulse">
+                        <i class="fas fa-spinner fa-spin text-5xl mb-4"></i>
+                        <p class="text-xl">กำลังดึงข้อมูลอัจฉริยะ...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="text-center py-10 bg-white border-t border-gray-100">
+            <div class="text-school-blue font-semibold text-lg">งานสภานักเรียน - โรงเรียนบ้านหาดส้มแป้น</div>
+            <div class="text-gray-400 text-sm mt-1 font-light">โดย ครูลลิตา โชครักษ์</div>
+        </footer>
+    </div>
+
+
+    <div id="adminView" class="hidden-view">
+        
+        <aside class="sidebar flex flex-col justify-between">
+            <div>
+                <div class="p-8 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-school-blue rounded-lg flex items-center justify-center text-white font-bold text-xl shadow">A</div>
+                    <h2 class="text-xl font-bold text-gray-800 tracking-tight">AdminPanel</h2>
+                </div>
+                
+                <div class="flex flex-col mt-4">
+                    <div onclick="switchAdminTab('dashboard')" id="tab-dashboard" class="menu-item menu-active"><i class="fas fa-chart-pie"></i> แผงควบคุมหลัก</div>
+                    <div onclick="switchAdminTab('candidate')" id="tab-candidate" class="menu-item"><i class="fas fa-users-gear"></i> จัดการผู้สมัคร</div>
+                    <div onclick="switchAdminTab('settings')" id="tab-settings" class="menu-item"><i class="fas fa-clock"></i> ตั้งเวลาเลือกตั้ง</div>
+                    <div onclick="switchAdminTab('logs')" id="tab-logs" class="menu-item"><i class="fas fa-shield-halved"></i> ประวัติระบบ</div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-10 left-0 w-full px-8">
+                <div class="p-4 bg-gray-50 rounded-2xl flex items-center gap-3 mb-4 shadow-inner">
+                    <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500"><i class="fas fa-user"></i></div>
+                    <div class="overflow-hidden">
+                        <p class="text-xs text-gray-400 leading-none">เจ้าหน้าที่</p>
+                        <p id="adminNameTag" class="text-sm font-bold text-gray-700 truncate"></p>
+                    </div>
+                </div>
+                <button onclick="logoutAdmin()" class="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-600 hover:text-white transition shadow-sm">
+                    <i class="fas fa-power-off mr-2"></i> ออกจากระบบ
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <div id="admin-dashboard-view" class="admin-tab">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+                        <p class="text-gray-400">ตรวจสอบความเคลื่อนไหวการเลือกตั้ง</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="exportExcelConfirm()" class="bg-green-100 text-green-700 px-5 py-2.5 rounded-xl font-bold hover:bg-green-600 hover:text-white transition"><i class="fas fa-file-excel mr-2"></i> โหลด Excel</button>
+                        <button onclick="exportChartConfirm()" class="bg-school-blue text-white px-5 py-2.5 rounded-xl font-bold shadow-lg hover:opacity-90 transition"><i class="fas fa-image mr-2"></i> Save Chart</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+                        <div class="w-14 h-14 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center text-2xl"><i class="fas fa-vote-yea"></i></div>
+                        <div><p class="text-sm text-gray-400 leading-tight">โหวตทั้งหมด</p><h3 id="totalVotes" class="text-4xl font-bold">0</h3></div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm col-span-1 lg:col-span-3 relative overflow-hidden">
+                        <div class="absolute top-4 right-4 text-gray-300 hover:text-school-blue cursor-pointer z-20 p-2" onclick="openChartModal()">
+                            <i class="fas fa-maximize"></i> ขยายเต็มจอ
+                        </div>
+                        <h3 class="text-sm text-gray-400 mb-2">สรุปคะแนนเรียลไทม์</h3>
+                        <div id="chartFrame" class="h-64"><canvas id="voteChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="bg-red-50 p-6 rounded-3xl border border-red-100 flex justify-between items-center">
+                    <div>
+                        <h4 class="text-red-700 font-bold text-lg"><i class="fas fa-triangle-exclamation mr-2"></i> พื้นที่อันตราย</h4>
+                        <p class="text-red-500 text-sm">การล้างคะแนนจะลบข้อมูลถาวรและถามชื่อเพื่อบันทึกประวัติ</p>
+                    </div>
+                    <button onclick="resetVotesConfirm()" class="bg-red-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-red-700 shadow-md transition">ล้างคะแนนทั้งหมด</button>
+                </div>
+            </div>
+
+            <div id="admin-candidate-view" class="admin-tab hidden-view">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">จัดการผู้สมัคร</h1>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 h-fit sticky top-20">
+                        <h3 class="text-xl font-bold mb-6 text-school-blue">เพิ่มรายชื่อผู้สมัคร</h3>
+                        <form id="addCForm" class="space-y-4">
+                            <div><label class="text-sm font-bold text-gray-500">หมายเลขเบอร์</label><input type="number" id="cNo" required class="w-full bg-gray-50 border-0 p-3 rounded-xl mt-1 focus:ring-2 focus:ring-school-blue outline-none" placeholder="เช่น 1"></div>
+                            <div><label class="text-sm font-bold text-gray-500">ชื่อ-นามสกุล</label><input type="text" id="cName" required class="w-full bg-gray-50 border-0 p-3 rounded-xl mt-1 focus:ring-2 focus:ring-school-blue outline-none" placeholder="เช่น ด.ช. ใจดี รักเรียน"></div>
+                            <div><label class="text-sm font-bold text-gray-500">ลิงก์รูปภาพ</label><input type="url" id="cImg" required class="w-full bg-gray-50 border-0 p-3 rounded-xl mt-1 focus:ring-2 focus:ring-school-blue outline-none" placeholder="https://..."></div>
+                            <button type="submit" class="w-full py-4 bg-school-blue text-white rounded-2xl font-bold shadow-lg hover:opacity-90 transition mt-4"><i class="fas fa-save mr-2"></i> เพิ่มผู้สมัครและประทับชื่อ</button>
+                        </form>
+                    </div>
+                    <div class="lg:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <h3 class="text-xl font-bold mb-6 text-gray-700">รายชื่อในระบบ</h3>
+                        <div id="adminList" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-settings-view" class="admin-tab hidden-view">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">ตั้งค่าเวลาโหวต</h1>
+                <div class="max-w-xl bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-school-blue mb-2">เวลาเปิดหีบ (เริ่มต้น)</label>
+                            <input type="datetime-local" id="setStart" class="w-full bg-gray-50 p-4 rounded-2xl border-0 focus:ring-2 focus:ring-school-blue">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-school-red mb-2">เวลาปิดหีบ (สิ้นสุด)</label>
+                            <input type="datetime-local" id="setEnd" class="w-full bg-gray-50 p-4 rounded-2xl border-0 focus:ring-2 focus:ring-school-red">
+                        </div>
+                        <button onclick="saveTimeSettingsConfirm()" class="w-full py-4 bg-gray-800 text-white rounded-2xl font-bold shadow-xl"><i class="fas fa-lock mr-2"></i> บันทึกการตั้งค่า</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-logs-view" class="admin-tab hidden-view">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">ประวัติการดำเนินการ (Audit Logs)</h1>
+                <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 text-gray-400 text-xs uppercase font-bold tracking-widest">
+                            <tr><th class="px-8 py-5">วันเวลา</th><th class="px-8 py-5">ผู้ปฏิบัติ</th><th class="px-8 py-5">รายการ</th></tr>
+                        </thead>
+                        <tbody id="logsTable" class="text-sm text-gray-600 divide-y divide-gray-50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="chartModal" class="modal">
+        <div class="modal-content relative flex flex-col items-center">
+            <span class="close-modal absolute top-4 right-6 p-2" onclick="closeChartModal()">&times;</span>
+            <div class="w-full h-full p-4">
+                <h3 class="text-2xl font-bold mb-4 text-school-blue text-center">ผลคะแนนสภานักเรียน 2569 - Real-time</h3>
+                <div class="h-full"><canvas id="voteChartModalCanvas"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ----------------------------------------------------
+        // ✅ 1. การตั้งค่า FIREBASE (รหัสของคุณ)
+        // ----------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAWPSDBWgM9tCyVsqs7l9U3F8Udt_t6Ys",
+            authDomain: "school-election-355c1.firebaseapp.com",
+            projectId: "school-election-355c1",
+            storageBucket: "school-election-355c1.firebasestorage.app",
+            messagingSenderId: "886547771027",
+            appId: "1:886547771027:web:74b4167cf4b24dd273e766"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ตัวแปรควบคุมภายใน
+        let sessionAdminName = "";
+        let voteChart, voteChartModal;
+        let timeSettings = { start: null, end: null };
+        let timer = null;
+        let cData = {}; 
+
+        // ----------------------------------------------------
+        // ✅ 2. ระบบรักษาความปลอดภัย & สลับหน้า
+        // ----------------------------------------------------
+        
+        // ฟังก์ชันยืนยันชื่อแอดมินทุกครั้งเมื่อจะบันทึกข้อมูล (Crucial for Audit Trail)
+        async function askAdminNameAgain(actionText) {
+            const { value: name } = await Swal.fire({
+                title: 'ยืนยันตัวตน',
+                html: `ท่านกำลังทำรายการ: <b>${actionText}</b><br>กรุณาพิมพ์ชื่อของท่านเพื่อยืนยันประวัติ:`,
+                input: 'text',
+                confirmButtonColor: '#1e3a8a',
+                allowOutsideClick: false,
+                confirmButtonText: '<i class="fas fa-check-circle"></i> ยืนยัน',
+                showCancelButton: true,
+                cancelButtonText: 'ยกเลิก',
+                inputAttributes: { autofocus: 'true' }
+            });
+            return name;
+        }
+
+        async function loginAdmin() {
+            const { value: pass } = await Swal.fire({
+                title: 'เข้าสู่ระบบผู้ดูแล',
+                html: '<i class="fas fa-lock text-5xl text-gray-300 mb-4"></i>',
+                input: 'password',
+                confirmButtonColor: '#1f2937'
+            });
+
+            if (pass === 'Bhsp2026') { // ✅ เปลี่ยนรหัสผ่านตามขอ
+                // ถามชื่อทุกครั้งเมื่อเข้าหน้าแอดมิน
+                const name = await askAdminNameAgain("เข้าสู่หน้าแอดมิน");
+                if(name) {
+                    sessionAdminName = name; // ✅ บันทึกชื่อแอดมินในเซสชั่น
+                    document.getElementById('adminNameTag').innerText = name;
+                    document.getElementById('voterView').classList.add('hidden-view');
+                    document.getElementById('adminView').classList.remove('hidden-view');
+                    switchAdminTab('dashboard');
+                    recordLog("เข้าสู่ระบบแอดมิน", name);
+                }
+            } else if(pass) { Swal.fire('รหัสผ่านไม่ถูกต้อง', 'กรุณาลองใหม่อีกครั้ง', 'error'); }
+        }
+
+        function logoutAdmin() {
+            recordLog("ออกจากระบบแอดมิน", sessionAdminName);
+            sessionAdminName = "";
+            document.getElementById('adminView').classList.add('hidden-view');
+            document.getElementById('voterView').classList.remove('hidden-view');
+            checkElectionStatus();
+        }
+
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden-view'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('menu-active'));
+            document.getElementById(`admin-${tabName}-view`).classList.remove('hidden-view');
+            document.getElementById(`tab-${tabName}`).classList.add('menu-active');
+            if(tabName === 'dashboard') initVoteStats();
+            if(tabName === 'logs') loadSystemLogs();
+        }
+
+        // ----------------------------------------------------
+        // ✅ 3. ฟังก์ชัน Audit Log (ประวัติการดำเนินการ)
+        // ----------------------------------------------------
+        async function recordLog(action, name) {
+            try {
+                await db.collection('audit_logs').add({
+                    action: action,
+                    admin: name,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        // ----------------------------------------------------
+        // ✅ 4. ระบบเวลา & สถานะการโหวต
+        // ----------------------------------------------------
+        function listenToTime() {
+            db.collection('settings').doc('electionTime').onSnapshot(doc => {
+                if(doc.exists) {
+                    const data = doc.data();
+                    timeSettings.start = data.startTime ? new Date(data.startTime).getTime() : null;
+                    timeSettings.end = data.endTime ? new Date(data.endTime).getTime() : null;
+                    if(document.getElementById('setStart')) document.getElementById('setStart').value = data.startTime || "";
+                    if(document.getElementById('setEnd')) document.getElementById('setEnd').value = data.endTime || "";
+                }
+                checkElectionStatus();
+            });
+        }
+
+        function checkElectionStatus() {
+            if(timer) clearInterval(timer);
+            timer = setInterval(() => {
+                const now = new Date().getTime();
+                const box = document.getElementById('timeStatusBox');
+                const grid = document.getElementById('votingGrid');
+                const icon = document.getElementById('statusIcon');
+                const title = document.getElementById('statusTitle');
+                const display = document.getElementById('timerDisplay');
+
+                if(!timeSettings.start || !timeSettings.end) {
+                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view');
+                    return;
+                }
+
+                if(now < timeSettings.start) {
+                    box.classList.remove('hidden-view'); grid.classList.add('hidden-view');
+                    icon.innerHTML = '<i class="fas fa-hourglass-start text-school-blue"></i>';
+                    title.innerText = "ยังไม่เปิดรับคะแนน";
+                    let d = timeSettings.start - now;
+                    let h = Math.floor(d / 3600000).toString().padStart(2, '0');
+                    let m = Math.floor((d % 3600000) / 60000).toString().padStart(2, '0');
+                    let s = Math.floor((d % 60000) / 1000).toString().padStart(2, '0');
+                    display.innerText = `${h}:${m}:${s}`;
+                } else if(now >= timeSettings.start && now <= timeSettings.end) {
+                    box.classList.add('hidden-view'); grid.classList.remove('hidden-view');
+                } else {
+                    box.classList.remove('hidden-view'); grid.classList.add('hidden-view');
+                    icon.innerHTML = '<i class="fas fa-box-open text-gray-300"></i>';
+                    title.innerText = "ปิดการลงคะแนนแล้ว";
+                    display.innerText = ""; clearInterval(timer);
+                }
+            }, 1000);
+        }
+
+        // --- แอดมิน: ตั้งค่าเวลา (ถามชื่อก่อน) ---
+        async function saveTimeSettingsConfirm() {
+            const s = document.getElementById('setStart').value;
+            const e = document.getElementById('setEnd').value;
+            const name = await askAdminNameAgain("ตั้งเวลาโหวต");
+            if(name) {
+                try {
+                    await db.collection('settings').doc('electionTime').set({ startTime: s, endTime: e });
+                    await recordLog(`ตั้งเวลาใหม่: ${s || 'เปิด'} - ${e || 'ตลอด'}`, name);
+                    Swal.fire('สำเร็จ', 'บันทึกเวลาเปิด-ปิดเรียบร้อย', 'success');
+                } catch(err) { Swal.fire('ล้มเหลว', '', 'error'); }
+            }
+        }
+
+        // ----------------------------------------------------
+        // ✅ 5. จัดการผู้สมัคร & แสดงผล iPad
+        // ----------------------------------------------------
+        async function loadCandidates() {
+            const render = document.getElementById('candidates-render');
+            const adminList = document.getElementById('adminList');
+            db.collection('candidates').orderBy('number').onSnapshot(snap => {
+                render.innerHTML = ""; adminList.innerHTML = "";
+                cData = {};
+                if(snap.empty) {
+                    render.innerHTML = "<p class='col-span-full py-10 text-center text-gray-300'>ยังไม่มีรายชื่อผู้สมัคร</p>";
+                    return;
+                }
+                snap.forEach(doc => {
+                    const c = doc.data();
+                    const id = doc.id;
+                    cData[c.number] = c.name;
+
+                    // การ์ดหน้าเด็ก (iPad 2 Cols ใหญ่เต็มตา)
+                    const card = document.createElement('div');
+                    card.className = "candidate-card w-full max-w-lg p-10 text-center flex flex-col items-center relative mt-16";
+                    card.onclick = () => confirmVote(c.number, c.name, c.imageUrl);
+                    card.innerHTML = `
+                        <div class="number-tag w-24 h-24 rounded-full flex items-center justify-center text-5xl font-black absolute">${c.number}</div>
+                        <img src="${c.imageUrl}" class="w-full h-80 object-cover rounded-3xl mt-12 mb-6 shadow-smonerror="this.src='https://via.placeholder.com/600x400'">
+                        <h3 class="text-3xl font-black text-gray-800 leading-tight">${c.name}</h3>
+                        <p class="text-school-blue font-semibold mt-4 text-2xl px-6 py-2 bg-blue-50 rounded-full w-full">กดเลือกเบอร์ ${c.number}</p>
+                    `;
+                    render.appendChild(card);
+
+                    // ลิสต์แอดมินสำหรับลบ
+                    const li = document.createElement('div');
+                    li.className = "flex justify-between items-center p-4 bg-gray-50 rounded-2xl";
+                    li.innerHTML = `<span class="font-bold text-gray-700">เบอร์ ${c.number} : ${c.name}</span>
+                        <button onclick="delCConfirm('${id}', ${c.number}, '${c.name}')" class="text-red-500 hover:scale-110 transition p-1"><i class="fas fa-trash-can"></i></button>`;
+                    adminList.appendChild(li);
+                });
+            });
+        }
+
+        function confirmVote(num, name, img) {
+            Swal.fire({
+                title: 'ยืนยันโหวตของคุณ',
+                html: `<b class="text-2xl text-school-blue">เบอร์ ${num}</b><br><span class="text-xl">${name}</span>`,
+                imageUrl: img, imageWidth: 200, imageHeight: 200,
+                showCancelButton: true, confirmButtonColor: '#1e3a8a', cancelButtonColor: '#dc2626',
+                confirmButtonText: '<i class="fas fa-check"></i> ตกลง เลือกเบอร์นี้',
+                cancelButtonText: 'ยกเลิก'
+            }).then(r => { if(r.isConfirmed) submitVote(num); });
+        }
+
+        async function submitVote(num) {
+            Swal.fire({title: 'กำลังส่งคะแนน...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+            try {
+                await db.collection('votes').add({ votedFor: num, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                Swal.fire({ icon: 'success', title: 'โหวตสำเร็จ!', text: 'ขอบคุณที่มาร่วมใช้สิทธิ์นะคะ', showConfirmButton: false, timer: 2000 });
+            } catch(e) { Swal.fire('ผิดพลาด', 'บันทึกคะแนนล้มเหลว', 'error'); }
+        }
+
+        // แอดมิน: เพิ่ม/ลบ ผู้สมัคร (ถามชื่อก่อน)
+        document.getElementById('addCForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const n = parseInt(document.getElementById('cNo').value);
+            const name = document.getElementById('cName').value;
+            const img = document.getElementById('cImg').value;
+            const confirmName = await askAdminNameAgain(`เพิ่มผู้สมัครเบอร์ ${n} (${name})`);
+            
+            if(confirmName) {
+                Swal.fire({title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading()});
+                try {
+                    await db.collection('candidates').add({ number: n, name: name, imageUrl: img });
+                    await recordLog(`เพิ่มผู้สมัคร: เบอร์ ${n} ${name}`, confirmName);
+                    e.target.reset();
+                    Swal.fire('เรียบร้อย', 'เพิ่มรายชื่อแล้ว', 'success');
+                } catch(err) { Swal.fire('ล้มเหลว', 'บันทึกข้อมูลไม่สำเร็จ', 'error'); }
+            }
+        });
+
+        async function delCConfirm(id, n, name) {
+            const confirmName = await askAdminNameAgain(`ลบผู้สมัครเบอร์ ${n} (${name})`);
+            if(confirmName) {
+                const r = await Swal.fire({ title: 'ยืนยันลบ?', text: `เบอร์ ${n} ${name}`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' });
+                if(r.isConfirmed) {
+                    Swal.fire({title: 'กำลังลบ...', didOpen: () => Swal.showLoading()});
+                    try {
+                        await db.collection('candidates').doc(id).delete();
+                        await recordLog(`ลบผู้สมัคร: เบอร์ ${n} ${name}`, confirmName);
+                        Swal.fire('สำเร็จ', 'ลบรายชื่อแล้ว', 'success');
+                    } catch(e) { Swal.fire('ผิดพลาด', '', 'error'); }
+                }
+            }
+        }
+
+        // ----------------------------------------------------
+        // ✅ 6. ส่วนงาน Dashboard แอดมิน (Chart & Export & Reset)
+        // ----------------------------------------------------
+        function initVoteStats() {
+            const ctx = document.getElementById('voteChart').getContext('2d');
+            if(voteChart) voteChart.destroy();
+            voteChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'คะแนนโหวต', data: [], backgroundColor: '#1e3a8a', borderRadius: 10 }] },
+                options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {family: 'Kanit'}} }, x: {ticks: {font: {family: 'Kanit'}}} }, plugins: {legend: {labels: {font: {family: 'Kanit'}}}}}
+            });
+
+            db.collection('votes').onSnapshot(snap => {
+                const results = {};
+                snap.forEach(d => { const n = d.data().votedFor; results[n] = (results[n] || 0) + 1; });
+                const sorted = Object.keys(results).sort((a,b) => a-b);
+                const labels = sorted.map(k => `เบอร์ ${k}`);
+                const data = sorted.map(k => results[k]);
+                
+                voteChart.data.labels = labels;
+                voteChart.data.datasets[0].data = data;
+                voteChart.update();
+                
+                // อัปเดตกราฟใน Modal ด้วยหากเปิดอยู่
+                if(voteChartModal) {
+                    voteChartModal.data.labels = labels;
+                    voteChartModal.data.datasets[0].data = data;
+                    voteChartModal.update();
+                }
+
+                document.getElementById('totalVotes').innerText = snap.size;
+            });
+        }
+
+        // --- ✅ ฟีเจอร์ขยายกราฟเต็มจอ (Modal) ---
+        function openChartModal() {
+            document.getElementById('chartModal').style.display = 'block';
+            const ctx = document.getElementById('voteChartModalCanvas').getContext('2d');
+            
+            // ก๊อปปี้ข้อมูลกราฟปัจจุบันไปใส่กราฟใน Modal
+            if(voteChartModal) voteChartModal.destroy();
+            voteChartModal = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: voteChart.data.labels, datasets: [{ label: 'คะแนนโหวต', data: voteChart.data.datasets[0].data, backgroundColor: '#dc2626', borderRadius: 15 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: {family: Kanit, size: 16}} }, x: {ticks: {font: {family: Kanit, size: 16}}} }, plugins: {legend: {labels: {font: {family: Kanit, size: 16}}}}}
+            });
+        }
+
+        function closeChartModal() {
+            document.getElementById('chartModal').style.display = 'none';
+        }
+
+        // ล้างคะแนน (ถามชื่อก่อน)
+        async function resetVotesConfirm() {
+            const confirmName = await askAdminNameAgain("ล้างคะแนนโหวตทั้งหมด");
+            if(confirmName) {
+                const r = await Swal.fire({ title: 'ยืนยันล้างข้อมูล?', text: "คะแนนโหวตทั้งหมดจะหายถาวร ไม่สามารถกู้คืนได้", icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' });
+                if(r.isConfirmed) {
+                    Swal.fire({title: 'กำลังเคลียร์ฐานข้อมูล...', didOpen: () => Swal.showLoading()});
+                    try {
+                        const snap = await db.collection('votes').get();
+                        const batch = db.batch();
+                        snap.docs.forEach(d => batch.delete(d.ref));
+                        await batch.commit();
+                        await recordLog(`ล้างคะแนนโหวตทั้งหมด (Reset)`, confirmName);
+                        Swal.fire('สำเร็จ', 'เคลียร์ข้อมูลเรียบร้อย เริ่มนับใหม่', 'success');
+                    } catch(e) { Swal.fire('ผิดพลาด', '', 'error'); }
+                }
+            }
+        }
+
+        // โหลดประวัติ Logs
+        async function loadSystemLogs() {
+            const table = document.getElementById('logsTable');
+            db.collection('audit_logs').orderBy('timestamp', 'desc').limit(50).onSnapshot(snap => {
+                table.innerHTML = "";
+                if(snap.empty) { table.innerHTML = '<tr><td colspan="3" class="text-center py-5 text-gray-300">ยังไม่มีประวัติ</td></tr>'; return; }
+                snap.forEach(d => {
+                    const l = d.data();
+                    const date = l.timestamp ? l.timestamp.toDate().toLocaleString('th-TH') : "เมื่อครู่";
+                    const row = `<tr><td class="px-8 py-4 text-xs tracking-tighter text-gray-400">${date}</td><td class="px-8 py-4 font-bold text-gray-800">${l.admin}</td><td class="px-8 py-4">${l.action}</td></tr>`;
+                    table.innerHTML += row;
+                });
+            });
+        }
+
+        // ส่งออกข้อมูล
+        async function exportExcelConfirm() {
+            const name = await askAdminNameAgain("โหลดไฟล์ Excel สรุปผล");
+            if(name) {
+                Swal.fire({title: 'กำลังสร้างไฟล์...', didOpen: () => Swal.showLoading()});
+                try {
+                    const snap = await db.collection('votes').get();
+                    const results = {};
+                    snap.forEach(d => { const n = d.data().votedFor; results[n] = (results[n] || 0) + 1; });
+                    const data = [["เบอร์", "ชื่อ-นามสกุล", "คะแนนที่ได้"]];
+                    Object.keys(cData).forEach(num => { data.push([num, cData[num], results[num] || 0]); });
+                    const ws = XLSX.utils.aoa_to_sheet(data);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "ผลการเลือกตั้ง");
+                    XLSX.writeFile(wb, "Election_Summary_BHSP.xlsx");
+                    await recordLog(`โหลดไฟล์ Excel สรุปผล`, name);
+                    Swal.close();
+                } catch (error) { Swal.fire(' Error', 'ไม่สามารถสร้างไฟล์ได้', 'error'); }
+            }
+        }
+
+        async function exportChartConfirm() {
+            const name = await askAdminNameAgain("เซฟรูปกราฟคะแนน");
+            if(name) {
+                html2canvas(document.getElementById('chartFrame')).then(canvas => {
+                    const a = document.createElement('a'); a.download = ' BHSP_Chart.png';
+                    a.href = canvas.toDataURL(); a.click();
+                    recordLog(`Export รูปกราฟคะแนน`, name);
+                });
+            }
+        }
+
+        // เริ่มต้นระบบ
+        listenToTime();
+        loadCandidates();
+    </script>
+</body>
+</html>
