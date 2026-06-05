@@ -44,10 +44,18 @@
             width: 100%; max-width: 320px; margin: 0 auto; margin-top: 20px; 
             display: flex; flex-direction: column; justify-content: space-between;
         }
+
+        /* ✅ แก้ไขรูปภาพ (เวอร์ชันรวมร่างสมบูรณ์): Cover, ขอบมนเป๊ะๆ, และเพิ่มเงายกมิติให้เท่ากันทุกรูป */
         .candidate-card img {
-            width: 100%; aspect-ratio: 3/4; object-fit: contain; object-position: center;
-            border-radius: 12px; background-color: #f8fafc;
+            width: 100%; 
+            aspect-ratio: 3/4; 
+            object-fit: cover; /* เปลี่ยนเป็น cover บังคับเต็มกรอบ */
+            object-position: center;
+            border-radius: 16px; /* โค้งให้ชัดขึ้น */
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12); /* ใส่เงาให้รูปลอยขึ้นมาเหมือนกันทั้งคู่ */
+            border: 3px solid #ffffff; /* ใส่ขอบขาวเนียนๆ กันสีกลืนไปกับพื้นหลัง */
         }
+        
         .candidate-card:hover { transform: translateY(-4px); border-color: #1e40af; box-shadow: 0 12px 30px rgba(30, 64, 175, 0.1); }
         
         .number-badge {
@@ -58,7 +66,7 @@
         }
 
         .countdown-box { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
-        .digit-box { background: #f8fafc; color: #1e40af; padding: 12px 18px; border-radius: 12px; font-weight: 600; font-size: 3.5rem; line-height: 1; border: 1px solid #e2e8f0; min-width: 70px; }
+        .digit-box { background: #f8fafc; color: #1e40af; padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 3.5rem; line-height: 1; border: 1px solid #e2e8f0; min-width: 70px;}
 
         .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; background-color: #ffffff; border-right: 1px solid #e2e8f0; z-index: 50; display: flex; flex-direction: column; }
         .main-content { margin-left: 260px; padding: 30px; background-color: #f8fafc; min-height: 100vh; }
@@ -266,7 +274,7 @@
                         <img src="https://www.banhadsompan.ac.th/_files_school/86101511/data/86101511_0_20240629-000624.png" class="w-16 h-16 mx-auto mb-2">
                         <h2 class="text-xl font-semibold text-theme-blue">สรุปผลการเลือกตั้งสภานักเรียน ประจำปีการศึกษา 2569</h2>
                         <h3 class="text-base font-light text-gray-600 mt-1">โรงเรียนบ้านหาดส้มแป้น</h3>
-                        <p class="text-sm font-medium text-gray-500 mt-3 bg-gray-50 inline-block px-4 py-1 rounded-full border border-gray-200">ยอดผู้ใช้สิทธิ์ทั้งหมด: <span id="exportTotalVotes" class="font-bold text-theme-red text-lg ml-1">0</span> คน</p>
+                        <p class="text-sm font-medium text-gray-500 mt-3 bg-gray-50 inline-block px-4 py-1 rounded-full border border-gray-200">ยอดผู้ใช้สิทธิ์ทั้งหมด: <span id="exportTotalVotes" class="font-bold text-theme-red text-lg">0</span> คน</p>
                     </div>
                     <div class="overflow-x-auto rounded-lg border border-gray-200">
                         <table class="w-full text-left border-collapse">
@@ -279,7 +287,7 @@
                                 </tr>
                             </thead>
                             <tbody id="exportTableBody" class="text-sm text-gray-700 divide-y divide-gray-100">
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -329,7 +337,7 @@
                             <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>
                         </div>
                         <div class="flex-grow overflow-y-auto p-2" id="liveLogsContainer">
-                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -528,7 +536,7 @@
                     box.classList.add('hidden-view'); grid.classList.add('hidden-view'); summary.classList.remove('hidden-view');
                     if(!isSummarized) {
                         renderSummary(); 
-                        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } }); // จุดพลุ
+                        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } }); 
                         isSummarized = true;
                     }
                     clearInterval(timerInterval);
@@ -655,7 +663,7 @@
         });
 
         async function delCConfirm(id, n, name) {
-            const confirmName = await askAdminName(`ลบผู้สมัครเบอร์ ${n}`);
+            const confirmName = await askAdminName("ลบผู้สมัคร");
             if(confirmName) {
                 const r = await Swal.fire({ title: 'ยืนยันลบ?', text: `ลบเบอร์ ${n} ${name}?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#e11d48' });
                 if(r.isConfirmed) {
